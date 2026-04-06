@@ -124,6 +124,5 @@ func (i *Interpreter) stringify(value any) string {
 }
 
 func (i *Interpreter) report(err *loxerror.LoxError) {
-	i.error = err
 	panic(err)
 }

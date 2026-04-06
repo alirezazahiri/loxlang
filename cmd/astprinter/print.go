@@ -59,7 +59,6 @@ func runPrompt() {
 }
 
 func run(l *lox.LoxLang, content string) {
-
 	tokens := l.Tokenize(content)
 
 	if l.HasErrors() {

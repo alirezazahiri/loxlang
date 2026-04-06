@@ -26,12 +26,12 @@ func (l *LoxLang) Run(code string) []*loxerror.LoxError {
 		return l.errors
 	}
 
-	expr := l.Parse(tokens)
+	statements := l.Parse(tokens)
 	if l.hadError {
 		return l.errors
 	}
 
-	l.Interpret(expr)
+	l.Interpret(statements)
 
 	if l.hadError {
 		return l.errors

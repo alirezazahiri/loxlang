@@ -1,15 +1,15 @@
 package interpreter
 
 import (
-	"loxlang/pkg/loxerror"
+	"loxlang/internal/environment"
 )
 
 type Interpreter struct {
-	error *loxerror.LoxError
+	env *environment.Environment
 }
 
 func New() *Interpreter {
 	return &Interpreter{
-		error: nil,
+		env: environment.New(),
 	}
 }

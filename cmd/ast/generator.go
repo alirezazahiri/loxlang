@@ -11,8 +11,11 @@ func main() {
 	expr := astgenerator.NewExpr()
 	exprFileName, exprContent := expr.Generate()
 
+	stmt := astgenerator.NewStmt()
+	stmtFileName, stmtContent := stmt.Generate()
+
 	file.WriteFiles(outputDir, map[string][]byte{
 		exprFileName: exprContent,
+		stmtFileName: stmtContent,
 	})
-
 }

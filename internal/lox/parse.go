@@ -6,7 +6,7 @@ import (
 	"loxlang/internal/tokenizer"
 )
 
-func (l *LoxLang) Parse(tokens []tokenizer.Token) ast.Expr {
+func (l *LoxLang) Parse(tokens []tokenizer.Token) []ast.Stmt {
 	p := parser.New(tokens)
 	result := p.Parse()
 

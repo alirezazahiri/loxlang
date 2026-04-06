@@ -64,6 +64,7 @@ func (p *Parser) report(token *tokenizer.Token, message loxerror.LoxErrorMessage
 	}
 
 	p.errors = append(p.errors, err)
+	panic(err)
 }
 
 func (p *Parser) synchronize() {
@@ -85,7 +86,6 @@ func (p *Parser) synchronize() {
 		case tokenizer.RETURN:
 			return
 		}
+		p.advance()
 	}
-
-	p.advance()
 }

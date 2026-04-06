@@ -1,1 +1,6 @@
-"0" + "2" > 2
+var a = 2;
+var b = 5;
+print a * b;
+print a + b;
+print a / b;
+print a - b;

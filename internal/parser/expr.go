@@ -8,11 +8,14 @@ import (
 
 type ExprParser interface {
 	expression() ast.Expr
+	// binary
 	equality() ast.Expr
 	comparison() ast.Expr
 	term() ast.Expr
 	factor() ast.Expr
+	// unary
 	unary() ast.Expr
+	// grouping, literal
 	primary() ast.Expr
 }
 
@@ -81,6 +84,10 @@ func (p *Parser) unary() ast.Expr {
 func (p *Parser) primary() ast.Expr {
 	if p.match(tokenizer.NUMBER, tokenizer.STRING, tokenizer.TRUE, tokenizer.FALSE, tokenizer.NIL) {
 		return ast.NewLiteral(p.previous().Literal())
+	}
+
+	if p.match(tokenizer.IDENTIFIER) {
+		return ast.NewVariable(*p.previous())
 	}
 
 	if p.match(tokenizer.LEFT_PAREN) {

@@ -3,6 +3,7 @@ package interpreter
 import (
 	"loxlang/internal/ast"
 	"loxlang/internal/tokenizer"
+	"loxlang/pkg/loxerror"
 )
 
 func (i *Interpreter) VisitLiteralExpr(expr *ast.Literal) any {
@@ -80,4 +81,12 @@ func (i *Interpreter) VisitUnaryExpr(expr *ast.Unary) any {
 
 func (i *Interpreter) VisitGroupingExpr(expr *ast.Grouping) any {
 	return i.evaluate(expr.Expression)
+}
+
+func (i *Interpreter) VisitVariableExpr(expr *ast.Variable) any {
+	value, ok := i.env.Get(expr.Name.Lexeme())
+	if !ok {
+		i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrUndefinedVariable))
+	}
+	return value
 }

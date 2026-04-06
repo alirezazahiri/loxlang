@@ -2,7 +2,9 @@
 
 package ast
 
-import "loxlang/internal/tokenizer"
+import (
+	"loxlang/internal/tokenizer"
+)
 
 type Expr interface {
 	Accept(visitor ExprVisitor) any
@@ -70,9 +72,24 @@ func (e *Unary) Accept(visitor ExprVisitor) any {
 	return visitor.VisitUnaryExpr(e)
 }
 
+type Variable struct {
+	Name tokenizer.Token
+}
+
+func NewVariable(name tokenizer.Token) *Variable {
+	return &Variable{
+		Name: name,
+	}
+}
+
+func (e *Variable) Accept(visitor ExprVisitor) any {
+	return visitor.VisitVariableExpr(e)
+}
+
 type ExprVisitor interface {
 	VisitBinaryExpr(expr *Binary) any
 	VisitGroupingExpr(expr *Grouping) any
 	VisitLiteralExpr(expr *Literal) any
 	VisitUnaryExpr(expr *Unary) any
+	VisitVariableExpr(expr *Variable) any
 }

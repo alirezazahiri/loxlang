@@ -10,15 +10,19 @@ type LoxErrorMessage string
 const (
 	// Tokenizer errors
 	ErrUnterminatedString LoxErrorMessage = "unterminated string"
-	ErrUnexpectedChar                     = "unexpected character"
+	ErrUnexpectedChar     LoxErrorMessage = "unexpected character"
 
 	// Parser errors
-	ErrUnterminatedParenthese         = "unterminated parenthese"
-	ErrUnexpectedTokenAfterExpression = "unexpected token after expression"
+	ErrUnterminatedParenthese         LoxErrorMessage = "unterminated parenthese"
+	ErrUnexpectedTokenAfterExpression LoxErrorMessage = "unexpected token after expression"
 
 	// Runtime errors
-	ErrExpectedNumericOperand  = "expected numeric operand after operator"
-	ErrExpectedNumericOperands = "both sides of the operator must be numeric"
+	ErrExpectedNumericOperand            LoxErrorMessage = "expected numeric operand after operator"
+	ErrExpectedNumericOperands           LoxErrorMessage = "both sides of the operator must be numeric"
+	ErrExpectedSemicolonAfterExpression  LoxErrorMessage = "expected \";\" after an expression"
+	ErrExpectedIdenAfterVar              LoxErrorMessage = "expected an identifier after using the \"var\" keyword"
+	ErrExpectedInitializationOrSemicolon LoxErrorMessage = "expected \";\" or initialization expression"
+	ErrUndefinedVariable                 LoxErrorMessage = "variable is not defined"
 )
 
 func ErrUnexpectedToken(received, expected string) LoxErrorMessage {

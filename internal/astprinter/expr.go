@@ -23,3 +23,7 @@ func (p *AstPrinter) VisitLiteralExpr(expr *ast.Literal) any {
 func (p *AstPrinter) VisitUnaryExpr(expr *ast.Unary) any {
 	return p.parenthesize(expr.Operator.Lexeme(), expr.Right)
 }
+
+func (p *AstPrinter) VisitVariableExpr(expr *ast.Variable) any {
+	return p.parenthesize(expr.Name.Lexeme())
+}
