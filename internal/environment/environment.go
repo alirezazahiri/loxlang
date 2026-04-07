@@ -1,11 +1,13 @@
 package environment
 
 type Environment struct {
-	values map[string]any
+	enclosing *Environment
+	values    map[string]any
 }
 
-func New() *Environment {
+func New(enclosing *Environment) *Environment {
 	return &Environment{
-		values: map[string]any{},
+		values:    map[string]any{},
+		enclosing: enclosing,
 	}
 }

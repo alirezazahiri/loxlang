@@ -27,3 +27,7 @@ func (p *AstPrinter) VisitUnaryExpr(expr *ast.Unary) any {
 func (p *AstPrinter) VisitVariableExpr(expr *ast.Variable) any {
 	return p.parenthesize(expr.Name.Lexeme())
 }
+
+func (p *AstPrinter) VisitAssignExpr(expr *ast.Assign) any {
+	return p.parenthesize(fmt.Sprintf("assign::%v", expr.Name.Lexeme()), expr.Value)
+}

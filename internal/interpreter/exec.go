@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	"loxlang/internal/ast"
+	"loxlang/internal/environment"
 	"loxlang/pkg/loxerror"
 )
 
@@ -17,4 +18,17 @@ func (i *Interpreter) execute(statement ast.Stmt) (err *loxerror.LoxError) {
 	}()
 	statement.Accept(i)
 	return nil
+}
+
+func (i *Interpreter) executeBlock(statements []ast.Stmt, env *environment.Environment) {
+	previous := i.env
+	i.env = env
+
+	defer func() {
+		i.env = previous
+	}()
+
+	for _, statement := range statements {
+		i.execute(statement)
+	}
 }

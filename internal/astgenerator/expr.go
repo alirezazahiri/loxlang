@@ -2,6 +2,7 @@ package astgenerator
 
 func NewExpr() *AstGenerator {
 	return New("Expr", []string{
+		"Assign : tokenizer.Token name, Expr value",
 		"Binary   : Expr left, tokenizer.Token operator, Expr right",
 		"Grouping : Expr expression",
 		"Literal  : any value",

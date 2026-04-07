@@ -9,6 +9,7 @@ import (
 type ExprParser interface {
 	expression() ast.Expr
 	// binary
+	assignment() ast.Expr
 	equality() ast.Expr
 	comparison() ast.Expr
 	term() ast.Expr
@@ -19,9 +20,27 @@ type ExprParser interface {
 	primary() ast.Expr
 }
 
-// expression -> equality
+// expression -> IDENTIFIER "=" IDENTIFIER | equality
 func (p *Parser) expression() ast.Expr {
-	return p.equality()
+	return p.assignment()
+}
+
+// expression -> equality :
+func (p *Parser) assignment() ast.Expr {
+	expr := p.equality()
+	if p.match(tokenizer.EQUAL) {
+		equals := p.previous()
+		value := p.assignment()
+
+		if variable, ok := expr.(*ast.Variable); ok {
+			name := variable.Name
+			return ast.NewAssign(name, value)
+		}
+
+		p.report(equals, loxerror.ErrUnexpectedAssignmentExpression)
+	}
+
+	return expr
 }
 
 // equality -> comparison ( ( "!=" | "==" ) comparison )* ;

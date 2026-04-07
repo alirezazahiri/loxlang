@@ -90,3 +90,15 @@ func (i *Interpreter) VisitVariableExpr(expr *ast.Variable) any {
 	}
 	return value
 }
+
+func (i *Interpreter) VisitAssignExpr(expr *ast.Assign) any {
+	value := i.evaluate(expr.Value)
+	
+	ok := i.env.Assign(expr.Name.Lexeme(), value)
+	
+	if !ok {
+		i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrCannotAssignToNonDeclaredVariables))
+	}
+	
+	return nil
+}

@@ -1,17 +1,19 @@
 package lox
 
 import (
+	"loxlang/internal/environment"
 	"loxlang/pkg/loxerror"
 )
 
 type LoxLang struct {
+	env      *environment.Environment
 	hadError bool
-	hadRuntimeError bool
 	errors   []*loxerror.LoxError
 }
 
 func New() *LoxLang {
 	return &LoxLang{
+		env:      environment.New(nil),
 		hadError: false,
 		errors:   nil,
 	}
@@ -39,7 +41,6 @@ func (l *LoxLang) Run(code string) []*loxerror.LoxError {
 
 	return nil
 }
-
 
 func (l *LoxLang) HasErrors() bool {
 	return l.hadError

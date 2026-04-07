@@ -8,8 +8,8 @@ type Interpreter struct {
 	env *environment.Environment
 }
 
-func New() *Interpreter {
+func New(env *environment.Environment) *Interpreter {
 	return &Interpreter{
-		env: environment.New(),
+		env: env,
 	}
 }
