@@ -20,12 +20,12 @@ type ExprParser interface {
 	primary() ast.Expr
 }
 
-// expression -> IDENTIFIER "=" IDENTIFIER | equality
+// expression -> assignment :
 func (p *Parser) expression() ast.Expr {
 	return p.assignment()
 }
 
-// expression -> equality :
+// assignment -> IDENTIFIER "=" assignment | equality
 func (p *Parser) assignment() ast.Expr {
 	expr := p.equality()
 	if p.match(tokenizer.EQUAL) {
