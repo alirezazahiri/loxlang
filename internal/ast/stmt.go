@@ -31,6 +31,28 @@ func (e *If) Accept(visitor StmtVisitor) any {
 	return visitor.VisitIfStmt(e)
 }
 
+type For struct {
+	Initializer Stmt
+	Condition   Expr
+	Modifier    Expr
+	Body        Stmt
+}
+
+func NewFor(initializer Stmt, condition Expr, modifier Expr, body Stmt) *For {
+	return &For{
+		Initializer: initializer,
+		Condition:   condition,
+		Modifier:    modifier,
+		Body:        body,
+	}
+}
+
+func (*For) stmt() {}
+
+func (e *For) Accept(visitor StmtVisitor) any {
+	return visitor.VisitForStmt(e)
+}
+
 type While struct {
 	Condition Expr
 	Then      Stmt
@@ -117,6 +139,7 @@ func (e *Var) Accept(visitor StmtVisitor) any {
 
 type StmtVisitor interface {
 	VisitIfStmt(stmt *If) any
+	VisitForStmt(stmt *For) any
 	VisitWhileStmt(stmt *While) any
 	VisitBlockStmt(stmt *Block) any
 	VisitExpressionStmt(stmt *Expression) any

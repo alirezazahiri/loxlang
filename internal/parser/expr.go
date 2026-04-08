@@ -20,7 +20,7 @@ type ExprParser interface {
 	primary() ast.Expr
 }
 
-// expression -> assignment :
+// expression -> assignment ;
 func (p *Parser) expression() ast.Expr {
 	return p.assignment()
 }

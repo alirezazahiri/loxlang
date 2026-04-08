@@ -47,3 +47,30 @@ func (i *Interpreter) VisitWhileStmt(stmt *ast.While) any {
 	}
 	return nil
 }
+
+func (i *Interpreter) VisitForStmt(stmt *ast.For) any {
+	previous := i.env
+    i.env = environment.New(previous)
+    defer func() { i.env = previous }()
+
+	init := stmt.Initializer
+	cond := stmt.Condition
+	mod := stmt.Modifier
+	body := stmt.Body
+	
+	if init != nil {
+		i.execute(init)
+	}
+
+	for {
+		if cond != nil && !i.isTruthy(i.evaluate(cond)) {
+			break
+		}
+		i.execute(body)
+		if mod != nil {
+			i.evaluate(mod)
+		}
+	}
+
+	return nil
+}

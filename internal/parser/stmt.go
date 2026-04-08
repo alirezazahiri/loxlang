@@ -11,8 +11,11 @@ type StmtParser interface {
 	statement() ast.Stmt
 	varDecl() ast.Stmt
 	exprStatement() ast.Stmt
+	forStatement() ast.Stmt
+	ifStatement() ast.Stmt
 	printStatement() ast.Stmt
-	block() ast.Stmt
+	whileStatement() ast.Stmt
+	block() []ast.Stmt
 }
 
 // declaration -> varDecl | statement ;
@@ -36,8 +39,11 @@ func (p *Parser) varDecl() ast.Stmt {
 	return ast.NewVar(*iden, initializer)
 }
 
-// statement -> exprStatement | ifStatement | printStatement | whileStatement | block ;
+// statement -> exprStatement | forStatement | ifStatement | printStatement | whileStatement | block ;
 func (p *Parser) statement() ast.Stmt {
+	if p.match(tokenizer.FOR) {
+		return p.forStatement()
+	}
 	if p.match(tokenizer.WHILE) {
 		return p.whileStatement()
 	}
@@ -58,6 +64,41 @@ func (p *Parser) exprStatement() ast.Stmt {
 	expr := p.expression()
 	p.consume(tokenizer.SEMICOLON, loxerror.ErrExpectedSemicolonAfterExpression)
 	return ast.NewExpression(expr)
+}
+
+// "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;
+func (p *Parser) forStatement() ast.Stmt {
+	p.consume(tokenizer.LEFT_PAREN, loxerror.ErrExpectedOpeningParenAfterFor)
+
+	var initializer ast.Stmt
+
+	if p.match(tokenizer.SEMICOLON) {
+		initializer = nil
+	} else if p.match(tokenizer.VAR) {
+		initializer = p.varDecl()
+	} else {
+		initializer = p.exprStatement()
+	}
+
+	var condition ast.Expr
+
+	if !p.check(tokenizer.SEMICOLON) {
+		condition = p.expression()
+	}
+
+	p.consume(tokenizer.SEMICOLON, loxerror.ErrExpectedSemicolonAfterExpression)
+
+	var modifier ast.Expr
+
+	if !p.check(tokenizer.RIGHT_PAREN) {
+		modifier = p.expression()
+	}
+
+	p.consume(tokenizer.RIGHT_PAREN, loxerror.ErrExpectedClosingParenAfterExpression)
+
+	body := p.statement()
+
+	return ast.NewFor(initializer, condition, modifier, body)
 }
 
 // "if" "(" expression ")" statement ( "else" statement )? ;

@@ -46,3 +46,24 @@ func (p *AstPrinter) VisitWhileStmt(stmt *ast.While) any {
 	return b.String()
 }
 
+func (p *AstPrinter) VisitForStmt(stmt *ast.For) any {
+	var b strings.Builder
+	init := stmt.Initializer
+	cond := stmt.Condition
+	mod := stmt.Modifier
+	b.WriteString("(for ")
+	if init != nil {
+		b.WriteString(fmt.Sprintf("init::%v; ", init.Accept(p)))
+	}
+	if cond != nil {
+		b.WriteString(p.parenthesize("cond", cond))
+	}
+	b.WriteString("; ")
+	if mod != nil {
+		b.WriteString(p.parenthesize("mod", mod))
+	}
+	b.WriteString(fmt.Sprintf(" (body %v)", stmt.Body.Accept(p)))
+	b.WriteString(")")
+	return b.String()
+}
+
