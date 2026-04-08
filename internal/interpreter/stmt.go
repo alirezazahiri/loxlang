@@ -30,3 +30,12 @@ func (i *Interpreter) VisitBlockStmt(stmt *ast.Block) any {
 	i.executeBlock(stmt.Statements, environment.New(i.env))
 	return nil
 }
+
+func (i *Interpreter) VisitIfStmt(stmt *ast.If) any {
+	if i.isTruthy(i.evaluate(stmt.Condition)) {
+		i.execute(stmt.ThenBranch)
+	} else if stmt.ElseBranch != nil {
+		i.execute(stmt.ElseBranch)
+	}
+	return nil
+}

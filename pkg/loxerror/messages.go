@@ -17,15 +17,17 @@ const (
 	ErrUnexpectedTokenAfterExpression LoxErrorMessage = "unexpected token after expression"
 
 	// Runtime errors
-	ErrExpectedNumericOperand             LoxErrorMessage = "expected numeric operand after operator"
-	ErrExpectedNumericOperands            LoxErrorMessage = "both sides of the operator must be numeric"
-	ErrExpectedSemicolonAfterExpression   LoxErrorMessage = "expected \";\" after an expression"
-	ErrExpectedIdenAfterVar               LoxErrorMessage = "expected an identifier after using the \"var\" keyword"
-	ErrExpectedInitializationOrSemicolon  LoxErrorMessage = "expected \";\" or initialization expression"
-	ErrUndefinedVariable                  LoxErrorMessage = "variable is not defined"
-	ErrUnexpectedAssignmentExpression     LoxErrorMessage = "invalid assignment expression"
-	ErrCannotAssignToNonDeclaredVariables LoxErrorMessage = "cannot assign to variables before declaration"
-	ErrUnexpectedUnclosedBlock            LoxErrorMessage = "expected \"}\" after the statement"
+	ErrExpectedNumericOperand              LoxErrorMessage = "expected numeric operand after operator"
+	ErrExpectedNumericOperands             LoxErrorMessage = "both sides of the operator must be numeric"
+	ErrExpectedSemicolonAfterExpression    LoxErrorMessage = "expected \";\" after an expression"
+	ErrExpectedIdenAfterVar                LoxErrorMessage = "expected an identifier after using the \"var\" keyword"
+	ErrExpectedInitializationOrSemicolon   LoxErrorMessage = "expected \";\" or initialization expression"
+	ErrUndefinedVariable                   LoxErrorMessage = "variable is not defined"
+	ErrUnexpectedAssignmentExpression      LoxErrorMessage = "invalid assignment expression"
+	ErrCannotAssignToNonDeclaredVariables  LoxErrorMessage = "cannot assign to variables before declaration"
+	ErrUnexpectedUnclosedBlock             LoxErrorMessage = "expected \"}\" after the statement"
+	ErrExpectedOpeningParenAfterIf         LoxErrorMessage = "expected \"(\" after \"if\""
+	ErrExpectedClosingParenAfterExpression LoxErrorMessage = "expected \")\" after expression"
 )
 
 func ErrUnexpectedToken(received, expected string) LoxErrorMessage {

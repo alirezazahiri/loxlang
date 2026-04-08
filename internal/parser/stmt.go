@@ -36,8 +36,11 @@ func (p *Parser) varDecl() ast.Stmt {
 	return ast.NewVar(*iden, initializer)
 }
 
-// statement -> exprStatement | printStatement | block ;
+// statement -> exprStatement | ifStatement | printStatement | block ;
 func (p *Parser) statement() ast.Stmt {
+	if p.match(tokenizer.IF) {
+		return p.ifStatement()
+	}
 	if p.match(tokenizer.PRINT) {
 		return p.printStatement()
 	}
@@ -54,6 +57,20 @@ func (p *Parser) exprStatement() ast.Stmt {
 	return ast.NewExpression(expr)
 }
 
+// "if" "(" expression ")" statement ( "else" statement )? ;
+func (p *Parser) ifStatement() ast.Stmt {
+	p.consume(tokenizer.LEFT_PAREN, loxerror.ErrExpectedOpeningParenAfterIf)
+	expr := p.expression()
+	p.consume(tokenizer.RIGHT_PAREN, loxerror.ErrExpectedClosingParenAfterExpression)
+	thenBlock := p.statement()
+
+	if p.match(tokenizer.ELSE) {
+		return ast.NewIf(expr, thenBlock, p.statement())
+	}
+
+	return ast.NewIf(expr, thenBlock, nil)
+}
+
 // printStatement -> "print" expression ";" ;
 func (p *Parser) printStatement() ast.Stmt {
 	value := p.expression()
@@ -66,7 +83,7 @@ func (p *Parser) block() []ast.Stmt {
 	statements := make([]ast.Stmt, 0)
 
 	for !p.check(tokenizer.RIGHT_BRACE) && !p.isAtEnd() {
-		statements = append(statements, p.declaration()) 
+		statements = append(statements, p.declaration())
 	}
 
 	p.consume(tokenizer.RIGHT_BRACE, loxerror.ErrUnexpectedUnclosedBlock)

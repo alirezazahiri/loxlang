@@ -11,6 +11,26 @@ type Stmt interface {
 	Accept(visitor StmtVisitor) any
 }
 
+type If struct {
+	Condition  Expr
+	ThenBranch Stmt
+	ElseBranch Stmt
+}
+
+func NewIf(condition Expr, thenBranch Stmt, elseBranch Stmt) *If {
+	return &If{
+		Condition:  condition,
+		ThenBranch: thenBranch,
+		ElseBranch: elseBranch,
+	}
+}
+
+func (*If) stmt() {}
+
+func (e *If) Accept(visitor StmtVisitor) any {
+	return visitor.VisitIfStmt(e)
+}
+
 type Block struct {
 	Statements []Stmt
 }
@@ -78,6 +98,7 @@ func (e *Var) Accept(visitor StmtVisitor) any {
 }
 
 type StmtVisitor interface {
+	VisitIfStmt(stmt *If) any
 	VisitBlockStmt(stmt *Block) any
 	VisitExpressionStmt(stmt *Expression) any
 	VisitPrintStmt(stmt *Print) any

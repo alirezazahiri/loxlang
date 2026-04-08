@@ -15,7 +15,7 @@ func (i *Interpreter) isTruthy(value any) bool {
 	if b, ok := value.(bool); ok {
 		return b
 	}
-
+	fmt.Println("value=", value)
 	switch n := value.(type) {
 	case float64:
 		return n != 0
