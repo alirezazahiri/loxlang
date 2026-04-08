@@ -49,6 +49,26 @@ func (e *Binary) Accept(visitor ExprVisitor) any {
 	return visitor.VisitBinaryExpr(e)
 }
 
+type Logical struct {
+	Left     Expr
+	Operator tokenizer.Token
+	Right    Expr
+}
+
+func NewLogical(left Expr, operator tokenizer.Token, right Expr) *Logical {
+	return &Logical{
+		Left:     left,
+		Operator: operator,
+		Right:    right,
+	}
+}
+
+func (*Logical) expr() {}
+
+func (e *Logical) Accept(visitor ExprVisitor) any {
+	return visitor.VisitLogicalExpr(e)
+}
+
 type Grouping struct {
 	Expression Expr
 }
@@ -118,6 +138,7 @@ func (e *Variable) Accept(visitor ExprVisitor) any {
 type ExprVisitor interface {
 	VisitAssignExpr(expr *Assign) any
 	VisitBinaryExpr(expr *Binary) any
+	VisitLogicalExpr(expr *Logical) any
 	VisitGroupingExpr(expr *Grouping) any
 	VisitLiteralExpr(expr *Literal) any
 	VisitUnaryExpr(expr *Unary) any

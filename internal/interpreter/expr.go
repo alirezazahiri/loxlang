@@ -93,12 +93,29 @@ func (i *Interpreter) VisitVariableExpr(expr *ast.Variable) any {
 
 func (i *Interpreter) VisitAssignExpr(expr *ast.Assign) any {
 	value := i.evaluate(expr.Value)
-	
+
 	ok := i.env.Assign(expr.Name.Lexeme(), value)
-	
+
 	if !ok {
 		i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrCannotAssignToNonDeclaredVariables))
 	}
-	
+
 	return nil
+}
+
+func (i *Interpreter) VisitLogicalExpr(expr *ast.Logical) any {
+	left := i.evaluate(expr.Left)
+
+	switch expr.Operator.Type() {
+	case tokenizer.OR:
+		if i.isTruthy(left) {
+			return left
+		}
+	case tokenizer.AND:
+		if !i.isTruthy(left) {
+			return left
+		}
+	}
+
+	return i.evaluate(expr.Right)
 }

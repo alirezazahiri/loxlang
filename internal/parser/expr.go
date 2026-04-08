@@ -25,9 +25,9 @@ func (p *Parser) expression() ast.Expr {
 	return p.assignment()
 }
 
-// assignment -> IDENTIFIER "=" assignment | equality
+// assignment -> IDENTIFIER "=" assignment | logic_or
 func (p *Parser) assignment() ast.Expr {
-	expr := p.equality()
+	expr := p.logicOr()
 	if p.match(tokenizer.EQUAL) {
 		equals := p.previous()
 		value := p.assignment()
@@ -38,6 +38,32 @@ func (p *Parser) assignment() ast.Expr {
 		}
 
 		p.report(equals, loxerror.ErrUnexpectedAssignmentExpression)
+	}
+
+	return expr
+}
+
+// logic_or -> logic_and ( "or" logic_and )*
+func (p *Parser) logicOr() ast.Expr {
+	expr := p.logicAnd()
+
+	for p.match(tokenizer.OR) {
+		operator := *p.previous()
+		right := p.logicAnd()
+		expr = ast.NewLogical(expr, operator, right)
+	}
+
+	return expr
+}
+
+// logic_and -> equality ( "and" equality )*
+func (p *Parser) logicAnd() ast.Expr {
+	expr := p.equality()
+
+	for p.match(tokenizer.AND) {
+		operator := *p.previous()
+		right := p.equality()
+		expr = ast.NewLogical(expr, operator, right)
 	}
 
 	return expr

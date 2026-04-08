@@ -37,3 +37,4 @@ func (p *AstPrinter) VisitIfStmt(stmt *ast.If) any {
 	b.WriteString(")")
 	return b.String()
 }
+

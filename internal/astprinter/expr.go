@@ -31,3 +31,7 @@ func (p *AstPrinter) VisitVariableExpr(expr *ast.Variable) any {
 func (p *AstPrinter) VisitAssignExpr(expr *ast.Assign) any {
 	return p.parenthesize(fmt.Sprintf("assign::%v", expr.Name.Lexeme()), expr.Value)
 }
+
+func (p *AstPrinter) VisitLogicalExpr(expr *ast.Logical) any {
+	return p.parenthesize(expr.Operator.Lexeme(), expr.Left, expr.Right)
+}
