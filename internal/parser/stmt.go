@@ -36,8 +36,11 @@ func (p *Parser) varDecl() ast.Stmt {
 	return ast.NewVar(*iden, initializer)
 }
 
-// statement -> exprStatement | ifStatement | printStatement | block ;
+// statement -> exprStatement | ifStatement | printStatement | whileStatement | block ;
 func (p *Parser) statement() ast.Stmt {
+	if p.match(tokenizer.WHILE) {
+		return p.whileStatement()
+	}
 	if p.match(tokenizer.IF) {
 		return p.ifStatement()
 	}
@@ -76,6 +79,16 @@ func (p *Parser) printStatement() ast.Stmt {
 	value := p.expression()
 	p.consume(tokenizer.SEMICOLON, loxerror.ErrExpectedSemicolonAfterExpression)
 	return ast.NewPrint(value)
+}
+
+// whileStatement -> "while" "(" expression ")" statement ;
+func (p *Parser) whileStatement() ast.Stmt {
+	p.consume(tokenizer.LEFT_PAREN, loxerror.ErrExpectedOpeningParenAfterWhile)
+	cond := p.expression()
+	p.consume(tokenizer.RIGHT_PAREN, loxerror.ErrExpectedClosingParenAfterExpression)
+	stmt := p.statement()
+
+	return ast.NewWhile(cond, stmt)
 }
 
 // block -> "{" declaration "}" ;

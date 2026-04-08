@@ -38,3 +38,11 @@ func (p *AstPrinter) VisitIfStmt(stmt *ast.If) any {
 	return b.String()
 }
 
+func (p *AstPrinter) VisitWhileStmt(stmt *ast.While) any {
+	var b strings.Builder
+	b.WriteString(fmt.Sprintf("(while %v", stmt.Condition.Accept(p)))
+	b.WriteString(fmt.Sprintf("(then %v)", stmt.Then.Accept(p)))
+	b.WriteString(")")
+	return b.String()
+}
+

@@ -31,6 +31,24 @@ func (e *If) Accept(visitor StmtVisitor) any {
 	return visitor.VisitIfStmt(e)
 }
 
+type While struct {
+	Condition Expr
+	Then      Stmt
+}
+
+func NewWhile(condition Expr, then Stmt) *While {
+	return &While{
+		Condition: condition,
+		Then:      then,
+	}
+}
+
+func (*While) stmt() {}
+
+func (e *While) Accept(visitor StmtVisitor) any {
+	return visitor.VisitWhileStmt(e)
+}
+
 type Block struct {
 	Statements []Stmt
 }
@@ -99,6 +117,7 @@ func (e *Var) Accept(visitor StmtVisitor) any {
 
 type StmtVisitor interface {
 	VisitIfStmt(stmt *If) any
+	VisitWhileStmt(stmt *While) any
 	VisitBlockStmt(stmt *Block) any
 	VisitExpressionStmt(stmt *Expression) any
 	VisitPrintStmt(stmt *Print) any

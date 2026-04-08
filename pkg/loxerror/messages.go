@@ -28,6 +28,7 @@ const (
 	ErrUnexpectedUnclosedBlock             LoxErrorMessage = "expected \"}\" after the statement"
 	ErrExpectedOpeningParenAfterIf         LoxErrorMessage = "expected \"(\" after \"if\""
 	ErrExpectedClosingParenAfterExpression LoxErrorMessage = "expected \")\" after expression"
+	ErrExpectedOpeningParenAfterWhile      LoxErrorMessage = "expected \"(\" after \"while\""
 )
 
 func ErrUnexpectedToken(received, expected string) LoxErrorMessage {

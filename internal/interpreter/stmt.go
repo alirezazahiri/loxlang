@@ -39,3 +39,11 @@ func (i *Interpreter) VisitIfStmt(stmt *ast.If) any {
 	}
 	return nil
 }
+
+func (i *Interpreter) VisitWhileStmt(stmt *ast.While) any {
+	cond := stmt.Condition
+	for i.isTruthy(i.evaluate(cond)) {
+		i.execute(stmt.Then)
+	}
+	return nil
+}
