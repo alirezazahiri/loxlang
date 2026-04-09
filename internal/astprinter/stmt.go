@@ -82,10 +82,10 @@ func (p *AstPrinter) VisitFunctionStmt(stmt *ast.Function) any {
 
 	paramsCount := 0
 	if params != nil {
-		b.WriteString(fmt.Sprintf("(params::%d ", paramsCount))
 		paramsCount = len(params)
 	}
-
+	
+	b.WriteString(fmt.Sprintf("(params::%d ", paramsCount))
 	b.WriteString(fmt.Sprintf("%s::block", name.Lexeme()))
 
 	for _, s := range body {

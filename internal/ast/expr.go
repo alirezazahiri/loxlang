@@ -119,6 +119,24 @@ func (e *Unary) Accept(visitor ExprVisitor) any {
 	return visitor.VisitUnaryExpr(e)
 }
 
+type Lambda struct {
+	Params []tokenizer.Token
+	Body   []Stmt
+}
+
+func NewLambda(params []tokenizer.Token, body []Stmt) *Lambda {
+	return &Lambda{
+		Params: params,
+		Body:   body,
+	}
+}
+
+func (*Lambda) expr() {}
+
+func (e *Lambda) Accept(visitor ExprVisitor) any {
+	return visitor.VisitLambdaExpr(e)
+}
+
 type Call struct {
 	Callee    Expr
 	Paren     tokenizer.Token
@@ -162,6 +180,7 @@ type ExprVisitor interface {
 	VisitGroupingExpr(expr *Grouping) any
 	VisitLiteralExpr(expr *Literal) any
 	VisitUnaryExpr(expr *Unary) any
+	VisitLambdaExpr(expr *Lambda) any
 	VisitCallExpr(expr *Call) any
 	VisitVariableExpr(expr *Variable) any
 }

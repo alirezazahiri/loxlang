@@ -1,13 +1,9 @@
-fun makeCounter(init) {
-    var i = init;
-    fun count() {
-        i = i + 1;
-        print i;
-    }
-    return count;
+fun mapCallback(a, fn) {
+    return fn(a);
 }
 
-var counter = makeCounter(10);
-counter(); // "11".
-counter(); // "12".
-counter(); // "13".
+var n = input("enter a number: ");
+
+log(mapCallback(n, fun (item) {
+    return item * 2;
+}));

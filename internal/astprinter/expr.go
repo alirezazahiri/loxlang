@@ -49,3 +49,29 @@ func (p *AstPrinter) VisitCallExpr(expr *ast.Call) any {
 
 	return b.String()
 }
+
+
+func (p *AstPrinter) VisitLambdaExpr(expr *ast.Lambda) any {
+		var b strings.Builder
+	
+		b.WriteString("(anonymous-fun\n")
+		params := expr.Params
+		body := expr.Body
+	
+		paramsCount := 0
+		if params != nil {
+			paramsCount = len(params)
+		}
+		
+		b.WriteString(fmt.Sprintf("(params::%d ", paramsCount))
+		b.WriteString("anonymous-fun")
+	
+		for _, s := range body {
+			b.WriteString(" ")
+			b.WriteString(fmt.Sprint(s.Accept(p)))
+		}
+	
+		b.WriteString("\n)")
+		return b.String()
+	
+}

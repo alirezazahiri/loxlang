@@ -9,6 +9,7 @@ import (
 
 type ExprParser interface {
 	expression() ast.Expr
+	lambda() ast.Expr
 	assignment() ast.Expr
 	logicOr() ast.Expr
 	logicAnd() ast.Expr
@@ -22,9 +23,28 @@ type ExprParser interface {
 	primary() ast.Expr
 }
 
-// expression -> assignment ;
+// expression -> lambda | assignment ;
 func (p *Parser) expression() ast.Expr {
+	if p.match(tokenizer.FUN) {
+		return p.lambda()
+	}
 	return p.assignment()
+}
+
+// lambda -> "fun" "(" parameters? ")" block ;
+func (p *Parser) lambda() ast.Expr {
+	var params []tokenizer.Token
+
+	p.consume(tokenizer.LEFT_PAREN, loxerror.ErrExprectedOpeningParenAfterAnonymousFunc)
+	if !p.check(tokenizer.RIGHT_PAREN) {
+		params = p.parameters()
+	}
+	p.consume(tokenizer.RIGHT_PAREN, loxerror.ErrExpectedClosingParenAfterParams)
+
+	p.consume(tokenizer.LEFT_BRACE, loxerror.ErrExprectedClosingBraceBeforeAnonymousFuncBody)
+
+	body := p.block()
+	return ast.NewLambda(params, body)
 }
 
 // assignment -> IDENTIFIER "=" assignment | logic_or

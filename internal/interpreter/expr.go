@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	"loxlang/internal/ast"
+	"loxlang/internal/environment"
 	"loxlang/internal/tokenizer"
 	"loxlang/pkg/interfaces"
 	"loxlang/pkg/loxerror"
@@ -140,4 +141,38 @@ func (i *Interpreter) VisitCallExpr(expr *ast.Call) any {
 		i.report(loxerror.NewRuntimeError(expr.Paren.Line(), expr.Paren.Lexeme(), loxerror.ErrArgsCountConflict(arity, argsLength)))
 	}
 	return function.Call(arguments)
+}
+
+func (i *Interpreter) VisitLambdaExpr(expr *ast.Lambda) any {
+	params := expr.Params
+	body := expr.Body
+
+	closure := i.env
+
+	arity := len(params)
+
+	return NewCallable(
+		"",
+		func(args []any) (res any) {
+			fnEnv := environment.New(closure)
+
+			for idx := range arity {
+				fnEnv.Define(params[idx].Lexeme(), args[idx])
+			}
+
+			defer func() {
+				if r := recover(); r != nil {
+					if ret, ok := r.(*Return); ok {
+						res = ret.Value
+					} else {
+						panic(r)
+					}
+				}
+			}()
+
+			i.executeBlock(body, fnEnv)
+			return nil
+		},
+		arity,
+	)
 }
