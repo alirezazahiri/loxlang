@@ -1,6 +1,4 @@
-fun test(a) {
-    log("Your name is: ", name);
+fun sayHi(first, last) {
+    log("Hi,", first, last+"!");
 }
-log("name: ");
-var name = input();
-test(name);
+sayHi(input("name: "), input("lastname: "));

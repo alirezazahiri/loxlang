@@ -17,7 +17,7 @@ func NewLogFn() interfaces.LoxCallable {
 }
 
 func (l *LogFn) Call(arguments []any) any {
-	fmt.Print(arguments...)
+	fmt.Println(arguments...)
 	return nil
 }
 
@@ -25,6 +25,6 @@ func (l *LogFn) Arity() int {
 	return -1
 }
 
-func (l *LogFn) ToString() string {
+func (l *LogFn) String() string {
 	return "<native fn>"
 }

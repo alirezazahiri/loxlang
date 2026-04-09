@@ -85,12 +85,16 @@ func (i *Interpreter) VisitFunctionStmt(stmt *ast.Function) any {
 		paramsCount = len(params)
 	}
 
+	
 	i.RegisterCallable(
 		NewCallable(
 			name.Lexeme(),
 			func(args []any) any {
-				i.executeBlock(body, environment.New(i.env))
-				// TODO: handle return value
+				fnEnvironment := environment.New(i.env)
+				for i := range paramsCount {
+					fnEnvironment.Define(params[i].Lexeme(), args[i])
+				}
+				i.executeBlock(body, fnEnvironment)
 				return nil
 			},
 			paramsCount,

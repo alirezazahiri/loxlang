@@ -27,8 +27,8 @@ func (f *Callable) Arity() int {
 	return f.paramsCount
 }
 
-func (f *Callable) ToString() string {
-	return fmt.Sprintf("%s fn", f.Name)
+func (f *Callable) String() string {
+	return fmt.Sprintf("<fn %s>", f.Name)
 }
 
 func (i *Interpreter) RegisterCallable(callable interfaces.LoxCallable) {

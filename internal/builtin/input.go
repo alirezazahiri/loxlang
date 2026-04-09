@@ -2,10 +2,11 @@ package builtin
 
 import (
 	"bufio"
+	"fmt"
 	"loxlang/pkg/constants"
 	"loxlang/pkg/interfaces"
 	"os"
-	"strings"
+	"strconv"
 )
 
 type InputFn struct {
@@ -20,15 +21,24 @@ func NewInputFn() interfaces.LoxCallable {
 
 func (i *InputFn) Call(arguments []any) any {
 	scanner := bufio.NewScanner(os.Stdin)
+	if len(arguments) > 0 {
+		fmt.Print(arguments...)
+	}
 	scanner.Scan()
-	line := strings.TrimSpace(scanner.Text())
-	return line
+	line := scanner.Text()
+	f, err := strconv.ParseFloat(line, 64)
+	
+	if err != nil {
+		return line
+	}
+
+	return f
 }
 
 func (i *InputFn) Arity() int {
-	return 0
+	return -1
 }
 
-func (i *InputFn) ToString() string {
+func (i *InputFn) String() string {
 	return "<native fn>"
 }

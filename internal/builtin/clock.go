@@ -24,6 +24,6 @@ func (c *ClockFn) Arity() int {
 	return 0
 }
 
-func (c *ClockFn) ToString() string {
+func (c *ClockFn) String() string {
 	return "<native fn>"
 }
