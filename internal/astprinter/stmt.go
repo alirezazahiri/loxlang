@@ -13,7 +13,10 @@ func (p *AstPrinter) VisitPrintStmt(stmt *ast.Print) any {
 	return p.parenthesize("print", stmt.Expression)
 }
 func (p *AstPrinter) VisitVarStmt(stmt *ast.Var) any {
-	return p.parenthesize(fmt.Sprintf("var::%s", stmt.Name.Lexeme()), stmt.Initializer)
+	if stmt.Initializer != nil {
+		return p.parenthesize(fmt.Sprintf("var::%s", stmt.Name.Lexeme()), stmt.Initializer)
+	} 
+	return fmt.Sprintf("var::%s", stmt.Name.Lexeme())
 }
 func (p *AstPrinter) VisitBlockStmt(stmt *ast.Block) any {
 	var b strings.Builder

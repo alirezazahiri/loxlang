@@ -3,6 +3,7 @@ package astprinter
 import (
 	"fmt"
 	"loxlang/internal/ast"
+	"strings"
 )
 
 func (p *AstPrinter) VisitBinaryExpr(expr *ast.Binary) any {
@@ -34,4 +35,17 @@ func (p *AstPrinter) VisitAssignExpr(expr *ast.Assign) any {
 
 func (p *AstPrinter) VisitLogicalExpr(expr *ast.Logical) any {
 	return p.parenthesize(expr.Operator.Lexeme(), expr.Left, expr.Right)
+}
+
+func (p *AstPrinter) VisitCallExpr(expr *ast.Call) any {
+	var b strings.Builder
+
+	b.WriteString(p.parenthesize("call", expr.Callee))
+	if len(expr.Arguments) > 0 {
+		b.WriteString(p.parenthesize("arg", expr.Arguments...))
+	} else {
+		b.WriteString("(no-args)")
+	}
+
+	return b.String()
 }

@@ -3,20 +3,22 @@ package parser
 import (
 	"loxlang/internal/ast"
 	"loxlang/internal/tokenizer"
+	"loxlang/pkg/constants"
 	"loxlang/pkg/loxerror"
 )
 
 type ExprParser interface {
 	expression() ast.Expr
-	// binary
 	assignment() ast.Expr
+	logicOr() ast.Expr
+	logicAnd() ast.Expr
 	equality() ast.Expr
 	comparison() ast.Expr
 	term() ast.Expr
 	factor() ast.Expr
-	// unary
 	unary() ast.Expr
-	// grouping, literal
+	call() ast.Expr
+	arguments() []ast.Expr
 	primary() ast.Expr
 }
 
@@ -114,15 +116,45 @@ func (p *Parser) factor() ast.Expr {
 	return expr
 }
 
-// unary -> ( "!" | "-" ) unary | primary ;
+// unary -> ( "!" | "-" ) unary | call ;
 func (p *Parser) unary() ast.Expr {
 	if p.match(tokenizer.BANG, tokenizer.MINUS) {
 		operator := p.previous()
 		right := p.unary()
 		return ast.NewUnary(*operator, right)
 	}
+	return p.call()
+}
+
+// call -> primarry ( "(" arguments? ")" )* ;
+func (p *Parser) call() ast.Expr {
 	expr := p.primary()
+	for  {
+		if p.match(tokenizer.LEFT_PAREN) {
+			expr = p.finishCall(expr)
+		} else {
+			break
+		}
+	}
 	return expr
+}
+
+// arguments -> expression ( "," expression )* ;
+func (p *Parser) finishCall(expr ast.Expr) ast.Expr {
+	arguments := make([]ast.Expr, 0)
+	if !p.check(tokenizer.RIGHT_PAREN) {
+		if len(arguments) > constants.MAX_ARGUMENTS_COUNT {
+			p.report(p.peek(), loxerror.ErrMaximumArgsCountExceeded)
+		}
+		arguments = append(arguments, p.expression())
+		for p.match(tokenizer.COMMA) {
+			arguments = append(arguments, p.expression())
+		}
+	}
+
+	paren := p.consume(tokenizer.RIGHT_PAREN, loxerror.ErrExpectedClosingParenAfterExpression)
+
+	return ast.NewCall(expr, *paren, arguments)
 }
 
 // primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;

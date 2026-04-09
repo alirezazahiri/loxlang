@@ -3,6 +3,7 @@ package interpreter
 import (
 	"loxlang/internal/ast"
 	"loxlang/internal/tokenizer"
+	"loxlang/pkg/interfaces"
 	"loxlang/pkg/loxerror"
 )
 
@@ -118,4 +119,25 @@ func (i *Interpreter) VisitLogicalExpr(expr *ast.Logical) any {
 	}
 
 	return i.evaluate(expr.Right)
+}
+
+func (i *Interpreter) VisitCallExpr(expr *ast.Call) any {
+	callee := i.evaluate(expr.Callee)
+	arguments := make([]any, 0)
+	for _, arg := range expr.Arguments {
+		arguments = append(arguments, i.evaluate(arg))
+	}
+
+	function, ok := callee.(interfaces.LoxCallable)
+
+	if !ok {
+		i.report(loxerror.NewRuntimeError(expr.Paren.Line(), expr.Paren.Lexeme(), loxerror.ErrCanOnlyCallFunctionsOrClasses))
+	}
+	arity := function.Arity()
+	argsLength := len(arguments)
+
+	if arity != -1 && arity != argsLength {
+		i.report(loxerror.NewRuntimeError(expr.Paren.Line(), expr.Paren.Lexeme(), loxerror.ErrArgsCountConflict(arity, argsLength)))
+	}
+	return function.Call(arguments)
 }

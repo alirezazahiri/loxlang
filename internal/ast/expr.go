@@ -119,6 +119,26 @@ func (e *Unary) Accept(visitor ExprVisitor) any {
 	return visitor.VisitUnaryExpr(e)
 }
 
+type Call struct {
+	Callee    Expr
+	Paren     tokenizer.Token
+	Arguments []Expr
+}
+
+func NewCall(callee Expr, paren tokenizer.Token, arguments []Expr) *Call {
+	return &Call{
+		Callee:    callee,
+		Paren:     paren,
+		Arguments: arguments,
+	}
+}
+
+func (*Call) expr() {}
+
+func (e *Call) Accept(visitor ExprVisitor) any {
+	return visitor.VisitCallExpr(e)
+}
+
 type Variable struct {
 	Name tokenizer.Token
 }
@@ -142,5 +162,6 @@ type ExprVisitor interface {
 	VisitGroupingExpr(expr *Grouping) any
 	VisitLiteralExpr(expr *Literal) any
 	VisitUnaryExpr(expr *Unary) any
+	VisitCallExpr(expr *Call) any
 	VisitVariableExpr(expr *Variable) any
 }

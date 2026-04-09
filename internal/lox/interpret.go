@@ -6,7 +6,7 @@ import (
 )
 
 func (l *LoxLang) Interpret(statements []ast.Stmt) {
-	i := interpreter.New(l.env)
+	i := interpreter.New(l.globals)
 	err := i.Interpret(statements)
 
 	l.hadError = err != nil

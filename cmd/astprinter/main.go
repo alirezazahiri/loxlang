@@ -62,6 +62,7 @@ func run(l *lox.LoxLang, content string) {
 	tokens := l.Tokenize(content)
 
 	if l.HasErrors() {
+		checkForErrors(l)
 		fmt.Println("Tokenization errored!")
 		return
 	}
@@ -69,6 +70,7 @@ func run(l *lox.LoxLang, content string) {
 	ast := l.Parse(tokens)
 
 	if l.HasErrors() {
+		checkForErrors(l)
 		fmt.Println("Parsing errored!")
 		return
 	}
@@ -76,4 +78,10 @@ func run(l *lox.LoxLang, content string) {
 	printer := astprinter.New()
 
 	fmt.Println(printer.Print(ast))
+}
+
+func checkForErrors(l *lox.LoxLang) {
+	for _, err := range l.Errors() {
+		fmt.Println(err)
+	}
 }

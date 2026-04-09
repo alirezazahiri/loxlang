@@ -8,6 +8,7 @@ func NewExpr() *AstGenerator {
 		"Grouping	: Expr expression",
 		"Literal	: any value",
 		"Unary		: tokenizer.Token operator, Expr right",
+		"Call		: Expr callee, tokenizer.Token paren, []Expr arguments",
 		"Variable	: tokenizer.Token name",
 	}, "loxlang/internal/tokenizer")
 }

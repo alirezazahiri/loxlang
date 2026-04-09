@@ -1,21 +1,23 @@
 package lox
 
 import (
+	"loxlang/internal/builtin"
 	"loxlang/internal/environment"
+	"loxlang/pkg/constants"
 	"loxlang/pkg/loxerror"
 )
 
 type LoxLang struct {
-	env      *environment.Environment
+	globals  *environment.Environment
 	hadError bool
 	errors   []*loxerror.LoxError
 }
 
 func New() *LoxLang {
 	return &LoxLang{
-		env:      environment.New(nil),
 		hadError: false,
 		errors:   nil,
+		globals:  environment.New(nil),
 	}
 }
 
@@ -33,6 +35,7 @@ func (l *LoxLang) Run(code string) []*loxerror.LoxError {
 		return l.errors
 	}
 
+	l.registerBuiltins()
 	l.Interpret(statements)
 
 	if l.hadError {
@@ -44,4 +47,14 @@ func (l *LoxLang) Run(code string) []*loxerror.LoxError {
 
 func (l *LoxLang) HasErrors() bool {
 	return l.hadError
+}
+
+func (l *LoxLang) Errors() []*loxerror.LoxError {
+	return l.errors
+}
+
+func (l *LoxLang) registerBuiltins() {
+	l.globals.Define(constants.CLOCK_FN, builtin.NewClockFn())
+	l.globals.Define(constants.INPUT_FN, builtin.NewInputFn())
+	l.globals.Define(constants.LOG_FN, builtin.NewLogFn())
 }
