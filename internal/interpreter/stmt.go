@@ -50,14 +50,14 @@ func (i *Interpreter) VisitWhileStmt(stmt *ast.While) any {
 
 func (i *Interpreter) VisitForStmt(stmt *ast.For) any {
 	previous := i.env
-    i.env = environment.New(previous)
-    defer func() { i.env = previous }()
+	i.env = environment.New(previous)
+	defer func() { i.env = previous }()
 
 	init := stmt.Initializer
 	cond := stmt.Condition
 	mod := stmt.Modifier
 	body := stmt.Body
-	
+
 	if init != nil {
 		i.execute(init)
 	}
@@ -71,6 +71,30 @@ func (i *Interpreter) VisitForStmt(stmt *ast.For) any {
 			i.evaluate(mod)
 		}
 	}
+
+	return nil
+}
+
+func (i *Interpreter) VisitFunctionStmt(stmt *ast.Function) any {
+	name := stmt.Name
+	params := stmt.Params
+	body := stmt.Body
+
+	paramsCount := 0
+	if params != nil {
+		paramsCount = len(params)
+	}
+
+	i.RegisterCallable(
+		NewCallable(
+			name.Lexeme(),
+			func(args []any) any {
+				i.executeBlock(body, environment.New(i.env))
+				// TODO: handle return value
+				return nil
+			},
+			paramsCount,
+		))
 
 	return nil
 }

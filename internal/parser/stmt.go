@@ -3,13 +3,16 @@ package parser
 import (
 	"loxlang/internal/ast"
 	"loxlang/internal/tokenizer"
+	"loxlang/pkg/constants"
 	"loxlang/pkg/loxerror"
 )
 
 type StmtParser interface {
 	declaration() ast.Stmt
-	statement() ast.Stmt
+	funDecl() ast.Stmt
+	function() ast.Stmt
 	varDecl() ast.Stmt
+	statement() ast.Stmt
 	exprStatement() ast.Stmt
 	forStatement() ast.Stmt
 	ifStatement() ast.Stmt
@@ -18,12 +21,53 @@ type StmtParser interface {
 	block() []ast.Stmt
 }
 
-// declaration -> varDecl | statement ;
+// declaration -> funDecl | varDecl | statement ;
 func (p *Parser) declaration() ast.Stmt {
+	if p.match(tokenizer.FUN) {
+		return p.funDecl()
+	}
 	if p.match(tokenizer.VAR) {
 		return p.varDecl()
 	}
 	return p.statement()
+}
+
+// funDecl -> "fun" function ;
+func (p *Parser) funDecl() ast.Stmt {
+	return p.function(constants.Function)
+}
+
+// function -> IDENTIFIER "(" parameters? ")" block ;
+func (p *Parser) function(kind constants.CallableKind) ast.Stmt {
+	name := p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectedIdenAfterFun)
+
+	var params []tokenizer.Token
+
+	p.consume(tokenizer.LEFT_PAREN, loxerror.ErrExpectedOpeningParenAfterCallableKindIden(kind))
+	if !p.check(tokenizer.RIGHT_PAREN) {
+		params = p.parameters()
+	}
+	p.consume(tokenizer.RIGHT_PAREN, loxerror.ErrExpectedClosingParenAfterParams)
+
+	p.consume(tokenizer.LEFT_BRACE, loxerror.ErrExpectedOpeningBraceBeforeCallableKindBody(kind))
+
+	body := p.block()
+
+	return ast.NewFunction(*name, params, body)
+}
+
+// parameters -> IDENTIFIER ( "," IDENTIFIER )* ;
+func (p *Parser) parameters() []tokenizer.Token {
+	params := make([]tokenizer.Token, 0)
+	params = append(params, *p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectParameterName))
+
+	for p.match(tokenizer.COMMA) {
+		if len(params) > constants.MAX_ARGUMENTS_COUNT {
+			p.report(p.peek(), loxerror.ErrMaximumParamsCountExceeded)
+		}
+		params = append(params, *p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectParameterName))
+	}
+	return params
 }
 
 // varDecl -> "var" IDENTIFIER ( "=" expression )? ";"

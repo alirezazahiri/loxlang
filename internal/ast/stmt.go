@@ -87,6 +87,26 @@ func (e *Block) Accept(visitor StmtVisitor) any {
 	return visitor.VisitBlockStmt(e)
 }
 
+type Function struct {
+	Name   tokenizer.Token
+	Params []tokenizer.Token
+	Body   []Stmt
+}
+
+func NewFunction(name tokenizer.Token, params []tokenizer.Token, body []Stmt) *Function {
+	return &Function{
+		Name:   name,
+		Params: params,
+		Body:   body,
+	}
+}
+
+func (*Function) stmt() {}
+
+func (e *Function) Accept(visitor StmtVisitor) any {
+	return visitor.VisitFunctionStmt(e)
+}
+
 type Expression struct {
 	Expression Expr
 }
@@ -142,6 +162,7 @@ type StmtVisitor interface {
 	VisitForStmt(stmt *For) any
 	VisitWhileStmt(stmt *While) any
 	VisitBlockStmt(stmt *Block) any
+	VisitFunctionStmt(stmt *Function) any
 	VisitExpressionStmt(stmt *Expression) any
 	VisitPrintStmt(stmt *Print) any
 	VisitVarStmt(stmt *Var) any

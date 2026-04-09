@@ -16,7 +16,7 @@ func (t *Tokenizer) string() {
 	}
 
 	if t.isAtEnd() {
-		raw := t.content[t.start : t.current] // skip opening "
+		raw := t.content[t.start:t.current] // skip opening "
 		before, _, found := strings.Cut(raw, "\n")
 		s := ""
 		if found {

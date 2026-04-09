@@ -32,6 +32,9 @@ const (
 	ErrExpectedOpeningParenAfterWhile      LoxErrorMessage = "expected \"(\" after \"while\""
 	ErrExpectedOpeningParenAfterFor        LoxErrorMessage = "expected \"(\" after \"for\""
 	ErrCanOnlyCallFunctionsOrClasses       LoxErrorMessage = "can only call functions or classes"
+	ErrExpectedIdenAfterFun                LoxErrorMessage = "expected identifier after  \"fun\" keyword"
+	ErrExpectedClosingParenAfterParams     LoxErrorMessage = "expected \")\" after parameters"
+	ErrExpectParameterName                 LoxErrorMessage = "expected name for parameter"
 )
 
 func ErrUnexpectedToken(received, expected string) LoxErrorMessage {
@@ -46,7 +49,16 @@ func ErrExpectedRightSideToBeOfLeftSideType(operator, expectedType string) LoxEr
 }
 
 var ErrMaximumArgsCountExceeded LoxErrorMessage = LoxErrorMessage(fmt.Sprintf("maximum arguments count exceeded (max=%d)", constants.MAX_ARGUMENTS_COUNT))
+var ErrMaximumParamsCountExceeded LoxErrorMessage = LoxErrorMessage(fmt.Sprintf("maximum parameters count exceeded (max=%d)", constants.MAX_ARGUMENTS_COUNT))
 
 func ErrArgsCountConflict(expectedCount, receivedCount int) LoxErrorMessage {
 	return LoxErrorMessage(fmt.Sprintf("expected %d argument(s), but got %d", expectedCount, receivedCount))
+}
+
+func ErrExpectedOpeningParenAfterCallableKindIden(kind constants.CallableKind) LoxErrorMessage {
+	return LoxErrorMessage(fmt.Sprintf("expected \"(\" after %s identifier", kind))
+}
+
+func ErrExpectedOpeningBraceBeforeCallableKindBody(kind constants.CallableKind) LoxErrorMessage {
+	return LoxErrorMessage(fmt.Sprintf("expected \"{\" before %s body", kind))
 }

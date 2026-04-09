@@ -12,9 +12,9 @@ type Token struct {
 func NewToken(t TokenType, lexeme string, literal any, line int) Token {
 	return Token{
 		tokenType: t,
-		lexeme: lexeme,
-		literal: literal,
-		line: line,
+		lexeme:    lexeme,
+		literal:   literal,
+		line:      line,
 	}
 }
 

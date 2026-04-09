@@ -40,7 +40,7 @@ func runFile(path string) {
 
 	l := lox.New()
 	fileContent := string(bytes)
-	
+
 	errs := l.Run(fileContent)
 	utils.LogErrors(errs, true)
 }

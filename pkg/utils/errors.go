@@ -8,7 +8,7 @@ import (
 
 func LogErrors(errs []*loxerror.LoxError, exit ...bool) {
 	shouldExit := false
-	
+
 	if exit != nil {
 		shouldExit = exit[0]
 	}

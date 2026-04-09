@@ -18,17 +18,17 @@ func NewInputFn() interfaces.LoxCallable {
 	}
 }
 
-func (c *InputFn) Call(arguments []any) any {
+func (i *InputFn) Call(arguments []any) any {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	line := strings.TrimSpace(scanner.Text())
 	return line
 }
 
-func (c *InputFn) Arity() int {
+func (i *InputFn) Arity() int {
 	return 0
 }
 
-func (c *InputFn) ToString() string {
+func (i *InputFn) ToString() string {
 	return "<native fn>"
 }

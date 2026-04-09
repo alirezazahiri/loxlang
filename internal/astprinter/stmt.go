@@ -15,7 +15,7 @@ func (p *AstPrinter) VisitPrintStmt(stmt *ast.Print) any {
 func (p *AstPrinter) VisitVarStmt(stmt *ast.Var) any {
 	if stmt.Initializer != nil {
 		return p.parenthesize(fmt.Sprintf("var::%s", stmt.Name.Lexeme()), stmt.Initializer)
-	} 
+	}
 	return fmt.Sprintf("var::%s", stmt.Name.Lexeme())
 }
 func (p *AstPrinter) VisitBlockStmt(stmt *ast.Block) any {
@@ -70,3 +70,27 @@ func (p *AstPrinter) VisitForStmt(stmt *ast.For) any {
 	return b.String()
 }
 
+func (p *AstPrinter) VisitFunctionStmt(stmt *ast.Function) any {
+	var b strings.Builder
+
+	name := stmt.Name
+	b.WriteString(fmt.Sprintf("(fun::%s\n", name.Lexeme()))
+	params := stmt.Params
+	body := stmt.Body
+
+	paramsCount := 0
+	if params != nil {
+		b.WriteString(fmt.Sprintf("(params::%d ", paramsCount))
+		paramsCount = len(params)
+	}
+
+	b.WriteString(fmt.Sprintf("%s::block", name.Lexeme()))
+
+	for _, s := range body {
+		b.WriteString(" ")
+		b.WriteString(fmt.Sprint(s.Accept(p)))
+	}
+
+	b.WriteString("\n)")
+	return b.String()
+}

@@ -1,1 +1,6 @@
-log(input(), input());
+fun test(a) {
+    log("Your name is: ", name);
+}
+log("name: ");
+var name = input();
+test(name);

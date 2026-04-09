@@ -129,7 +129,7 @@ func (p *Parser) unary() ast.Expr {
 // call -> primarry ( "(" arguments? ")" )* ;
 func (p *Parser) call() ast.Expr {
 	expr := p.primary()
-	for  {
+	for {
 		if p.match(tokenizer.LEFT_PAREN) {
 			expr = p.finishCall(expr)
 		} else {

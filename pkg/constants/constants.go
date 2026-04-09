@@ -1,5 +1,5 @@
 package constants
 
 const (
-	MAX_ARGUMENTS_COUNT int = 127
+	MAX_ARGUMENTS_COUNT int = 255
 )
