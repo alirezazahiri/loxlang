@@ -36,7 +36,9 @@ func (p *AstPrinter) VisitIfStmt(stmt *ast.If) any {
 	var b strings.Builder
 	b.WriteString(fmt.Sprintf("(if %v", stmt.Condition.Accept(p)))
 	b.WriteString(fmt.Sprintf("(then %v)", stmt.ThenBranch.Accept(p)))
-	b.WriteString(fmt.Sprintf("(else %v)", stmt.ElseBranch.Accept(p)))
+	if stmt.ElseBranch != nil {
+		b.WriteString(fmt.Sprintf("(else %v)", stmt.ElseBranch.Accept(p)))
+	}
 	b.WriteString(")")
 	return b.String()
 }
@@ -93,4 +95,8 @@ func (p *AstPrinter) VisitFunctionStmt(stmt *ast.Function) any {
 
 	b.WriteString("\n)")
 	return b.String()
+}
+
+func (p *AstPrinter) VisitReturnStmt(stmt *ast.Return) any {
+	return p.parenthesize("return", stmt.Value)
 }

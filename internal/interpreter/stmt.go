@@ -80,25 +80,44 @@ func (i *Interpreter) VisitFunctionStmt(stmt *ast.Function) any {
 	params := stmt.Params
 	body := stmt.Body
 
-	paramsCount := 0
-	if params != nil {
-		paramsCount = len(params)
-	}
+	closure := i.env
 
-	
+	arity := len(params)
+
 	i.RegisterCallable(
 		NewCallable(
 			name.Lexeme(),
-			func(args []any) any {
-				fnEnvironment := environment.New(i.env)
-				for i := range paramsCount {
-					fnEnvironment.Define(params[i].Lexeme(), args[i])
+			func(args []any) (res any) {
+				fnEnv := environment.New(closure)
+
+				for idx := range arity {
+					fnEnv.Define(params[idx].Lexeme(), args[idx])
 				}
-				i.executeBlock(body, fnEnvironment)
+
+				defer func() {
+					if r := recover(); r != nil {
+						if ret, ok := r.(*Return); ok {
+							res = ret.Value
+						} else {
+							panic(r)
+						}
+					}
+				}()
+
+				i.executeBlock(body, fnEnv)
 				return nil
 			},
-			paramsCount,
+			arity,
 		))
 
+	return nil
+}
+
+func (i *Interpreter) VisitReturnStmt(stmt *ast.Return) any {
+	val := any(nil)
+	if stmt.Value != nil {
+		val = i.evaluate(stmt.Value)
+	}
+	NewReturn(val).Throw()
 	return nil
 }

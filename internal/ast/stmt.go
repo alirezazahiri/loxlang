@@ -123,6 +123,24 @@ func (e *Expression) Accept(visitor StmtVisitor) any {
 	return visitor.VisitExpressionStmt(e)
 }
 
+type Return struct {
+	Keyword tokenizer.Token
+	Value   Expr
+}
+
+func NewReturn(keyword tokenizer.Token, value Expr) *Return {
+	return &Return{
+		Keyword: keyword,
+		Value:   value,
+	}
+}
+
+func (*Return) stmt() {}
+
+func (e *Return) Accept(visitor StmtVisitor) any {
+	return visitor.VisitReturnStmt(e)
+}
+
 type Print struct {
 	Expression Expr
 }
@@ -164,6 +182,7 @@ type StmtVisitor interface {
 	VisitBlockStmt(stmt *Block) any
 	VisitFunctionStmt(stmt *Function) any
 	VisitExpressionStmt(stmt *Expression) any
+	VisitReturnStmt(stmt *Return) any
 	VisitPrintStmt(stmt *Print) any
 	VisitVarStmt(stmt *Var) any
 }

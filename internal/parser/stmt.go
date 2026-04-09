@@ -17,6 +17,7 @@ type StmtParser interface {
 	forStatement() ast.Stmt
 	ifStatement() ast.Stmt
 	printStatement() ast.Stmt
+	returnStatement() ast.Stmt
 	whileStatement() ast.Stmt
 	block() []ast.Stmt
 }
@@ -83,7 +84,7 @@ func (p *Parser) varDecl() ast.Stmt {
 	return ast.NewVar(*iden, initializer)
 }
 
-// statement -> exprStatement | forStatement | ifStatement | printStatement | whileStatement | block ;
+// statement -> exprStatement | forStatement | ifStatement | returnStatement | printStatement | whileStatement | block ;
 func (p *Parser) statement() ast.Stmt {
 	if p.match(tokenizer.FOR) {
 		return p.forStatement()
@@ -93,6 +94,9 @@ func (p *Parser) statement() ast.Stmt {
 	}
 	if p.match(tokenizer.IF) {
 		return p.ifStatement()
+	}
+	if p.match(tokenizer.RETURN) {
+		return p.returnStatement()
 	}
 	if p.match(tokenizer.PRINT) {
 		return p.printStatement()
@@ -157,6 +161,17 @@ func (p *Parser) ifStatement() ast.Stmt {
 	}
 
 	return ast.NewIf(expr, thenBlock, nil)
+}
+
+// return -> "return" expression? ";" ;
+func (p *Parser) returnStatement() ast.Stmt {
+	keyword := *p.previous()
+	var value ast.Expr = nil  
+	if !p.check(tokenizer.SEMICOLON) {
+		value = p.expression()
+	}
+	p.consume(tokenizer.SEMICOLON, loxerror.ErrExpectedSemicolonAfterExpression)
+	return ast.NewReturn(keyword, value)
 }
 
 // printStatement -> "print" expression ";" ;

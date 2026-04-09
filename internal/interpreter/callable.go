@@ -6,16 +6,16 @@ import (
 )
 
 type Callable struct {
-	Name        string
-	cb          func(args []any) any
-	paramsCount int
+	Name  string
+	cb    func(args []any) any
+	arity int
 }
 
-func NewCallable(name string, cb func(args []any) any, paramsCount int) interfaces.LoxCallable {
+func NewCallable(name string, cb func(args []any) any, arity int) interfaces.LoxCallable {
 	return &Callable{
-		Name:        name,
-		cb:          cb,
-		paramsCount: paramsCount,
+		Name:  name,
+		cb:    cb,
+		arity: arity,
 	}
 }
 
@@ -24,7 +24,7 @@ func (f *Callable) Call(arguments []any) any {
 }
 
 func (f *Callable) Arity() int {
-	return f.paramsCount
+	return f.arity
 }
 
 func (f *Callable) String() string {

@@ -8,6 +8,7 @@ func NewStmt() *AstGenerator {
 		"Block   		: []Stmt statements",
 		"Function   	: tokenizer.Token name, []tokenizer.Token params, []Stmt body",
 		"Expression   	: Expr expression",
+		"Return   		: tokenizer.Token keyword, Expr value",
 		"Print   		: Expr expression",
 		"Var        	: tokenizer.Token name, Expr initializer",
 	}, "loxlang/internal/tokenizer")

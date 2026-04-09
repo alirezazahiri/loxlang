@@ -1,4 +1,0 @@
-fun sayHi(first, last) {
-    log("Hi,", first, last+"!");
-}
-sayHi(input("name: "), input("lastname: "));
