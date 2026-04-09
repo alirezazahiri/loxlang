@@ -2,7 +2,6 @@ package tokenizer
 
 import (
 	"loxlang/pkg/loxerror"
-	"loxlang/pkg/utils"
 )
 
 func (t *Tokenizer) scanToken() {
@@ -80,9 +79,9 @@ func (t *Tokenizer) scanToken() {
 		t.string()
 
 	default:
-		if utils.IsDigit(c) {
+		if isDigit(c) {
 			t.number()
-		} else if utils.IsAlpha(c) {
+		} else if isAlpha(c) {
 			t.identifier()
 		} else {
 			t.errors = append(t.errors, loxerror.NewTokenizerError(t.line, string(c), loxerror.ErrUnexpectedChar))
@@ -111,7 +110,7 @@ func (t *Tokenizer) addLiteral(tokenType TokenType, literal any) {
 }
 
 func (t *Tokenizer) identifier() {
-	for utils.IsAlphaNumeric(t.peek()) {
+	for isAlphaNumeric(t.peek()) {
 		t.advance()
 	}
 

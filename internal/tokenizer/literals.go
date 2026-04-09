@@ -2,7 +2,6 @@ package tokenizer
 
 import (
 	"loxlang/pkg/loxerror"
-	"loxlang/pkg/utils"
 	"strconv"
 	"strings"
 )
@@ -37,14 +36,14 @@ func (t *Tokenizer) string() {
 }
 
 func (t *Tokenizer) number() {
-	for utils.IsDigit(t.peek()) {
+	for isDigit(t.peek()) {
 		t.advance()
 	}
 
 	// fractional part
-	if t.peek() == '.' && utils.IsDigit(t.peekNext()) {
+	if t.peek() == '.' && isDigit(t.peekNext()) {
 		t.advance() // '.'
-		for utils.IsDigit(t.peek()) {
+		for isDigit(t.peek()) {
 			t.advance()
 		}
 	}
