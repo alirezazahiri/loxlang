@@ -1,0 +1,13 @@
+fun makeCounter(init) {
+    var i = init;
+    fun count() {
+        i = i + 1;
+        print i;
+    }
+    return count;
+}
+
+var counter = makeCounter(10);
+counter(); // "11".
+counter(); // "12".
+counter(); // "13".
