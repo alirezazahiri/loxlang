@@ -58,9 +58,15 @@ func ErrArgsCountConflict(expectedCount, receivedCount int) LoxErrorMessage {
 }
 
 func ErrExpectedOpeningParenAfterCallableKindIden(kind constants.CallableKind) LoxErrorMessage {
+	if kind == constants.AnonymousFunction {
+		return ErrExprectedOpeningParenAfterAnonymousFunc
+	}
 	return LoxErrorMessage(fmt.Sprintf("expected \"(\" after %s identifier", kind))
 }
 
 func ErrExpectedOpeningBraceBeforeCallableKindBody(kind constants.CallableKind) LoxErrorMessage {
+	if kind == constants.AnonymousFunction {
+		return ErrExprectedClosingBraceBeforeAnonymousFuncBody
+	}
 	return LoxErrorMessage(fmt.Sprintf("expected \"{\" before %s body", kind))
 }

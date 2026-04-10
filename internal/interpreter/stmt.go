@@ -87,26 +87,7 @@ func (i *Interpreter) VisitFunctionStmt(stmt *ast.Function) any {
 	i.RegisterCallable(
 		NewCallable(
 			name.Lexeme(),
-			func(args []any) (res any) {
-				fnEnv := environment.New(closure)
-
-				for idx := range arity {
-					fnEnv.Define(params[idx].Lexeme(), args[idx])
-				}
-
-				defer func() {
-					if r := recover(); r != nil {
-						if ret, ok := r.(*Return); ok {
-							res = ret.Value
-						} else {
-							panic(r)
-						}
-					}
-				}()
-
-				i.executeBlock(body, fnEnv)
-				return nil
-			},
+			i.CallableCallback(closure, params, body),
 			arity,
 		))
 

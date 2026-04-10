@@ -1,7 +1,9 @@
 package parser
 
 import (
+	"loxlang/internal/ast"
 	"loxlang/internal/tokenizer"
+	"loxlang/pkg/constants"
 	"loxlang/pkg/loxerror"
 )
 
@@ -88,4 +90,21 @@ func (p *Parser) synchronize() {
 		}
 		p.advance()
 	}
+}
+
+func (p *Parser) extractParamsAndBody(kind constants.CallableKind) ([]tokenizer.Token, []ast.Stmt) {
+	p.consume(tokenizer.LEFT_PAREN, loxerror.ErrExpectedOpeningParenAfterCallableKindIden(kind))
+
+	var params []tokenizer.Token
+
+	if !p.check(tokenizer.RIGHT_PAREN) {
+		params = p.parameters()
+	}
+	p.consume(tokenizer.RIGHT_PAREN, loxerror.ErrExpectedClosingParenAfterParams)
+
+	p.consume(tokenizer.LEFT_BRACE, loxerror.ErrExpectedOpeningBraceBeforeCallableKindBody(kind))
+
+	body := p.block()
+
+	return params, body
 }

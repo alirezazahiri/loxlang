@@ -33,17 +33,7 @@ func (p *Parser) expression() ast.Expr {
 
 // lambda -> "fun" "(" parameters? ")" block ;
 func (p *Parser) lambda() ast.Expr {
-	var params []tokenizer.Token
-
-	p.consume(tokenizer.LEFT_PAREN, loxerror.ErrExprectedOpeningParenAfterAnonymousFunc)
-	if !p.check(tokenizer.RIGHT_PAREN) {
-		params = p.parameters()
-	}
-	p.consume(tokenizer.RIGHT_PAREN, loxerror.ErrExpectedClosingParenAfterParams)
-
-	p.consume(tokenizer.LEFT_BRACE, loxerror.ErrExprectedClosingBraceBeforeAnonymousFuncBody)
-
-	body := p.block()
+	params, body := p.extractParamsAndBody(constants.AnonymousFunction)
 	return ast.NewLambda(params, body)
 }
 

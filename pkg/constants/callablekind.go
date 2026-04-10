@@ -3,5 +3,6 @@ package constants
 type CallableKind string
 
 const (
-	Function CallableKind = "function"
+	Function          CallableKind = "function"
+	AnonymousFunction CallableKind = "anonymous"
 )

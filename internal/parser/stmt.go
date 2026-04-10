@@ -41,19 +41,7 @@ func (p *Parser) funDecl() ast.Stmt {
 // function -> IDENTIFIER "(" parameters? ")" block ;
 func (p *Parser) function(kind constants.CallableKind) ast.Stmt {
 	name := p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectedIdenAfterFun)
-
-	var params []tokenizer.Token
-
-	p.consume(tokenizer.LEFT_PAREN, loxerror.ErrExpectedOpeningParenAfterCallableKindIden(kind))
-	if !p.check(tokenizer.RIGHT_PAREN) {
-		params = p.parameters()
-	}
-	p.consume(tokenizer.RIGHT_PAREN, loxerror.ErrExpectedClosingParenAfterParams)
-
-	p.consume(tokenizer.LEFT_BRACE, loxerror.ErrExpectedOpeningBraceBeforeCallableKindBody(kind))
-
-	body := p.block()
-
+	params, body := p.extractParamsAndBody(constants.Function)
 	return ast.NewFunction(*name, params, body)
 }
 

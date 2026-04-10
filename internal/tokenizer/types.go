@@ -21,6 +21,10 @@ const (
 	PLUS
 	// ;
 	SEMICOLON
+	// [
+	LEFT_BRACKET
+	// ]
+	RIGHT_BRACKET
 	// /
 	SLASH
 	// *
@@ -74,6 +78,10 @@ const (
 	PRINT
 	// return
 	RETURN
+	// break
+	BREAK
+	// continue 
+	CONTINUE
 	// super
 	SUPER
 	// this

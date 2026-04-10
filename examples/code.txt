@@ -1,9 +1,7 @@
-fun mapCallback(a, fn) {
-    return fn(a);
-}
+var a = (fun (a){
+    return fun () {
+        return a*5;
+    };
+})(2);
 
-var n = input("enter a number: ");
-
-log(mapCallback(n, fun (item) {
-    return item * 2;
-}));
+log(a());
