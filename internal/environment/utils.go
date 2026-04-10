@@ -1,13 +1,15 @@
 package environment
 
+import "loxlang/internal/tokenizer"
+
 func (e *Environment) Define(name string, value any) {
 	e.values[name] = value
 }
 
-func (e *Environment) Assign(name string, value any) bool {
-	_, ok := e.values[name]
+func (e *Environment) Assign(name tokenizer.Token, value any) bool {
+	_, ok := e.values[name.Lexeme()]
 	if ok {
-		e.values[name] = value
+		e.values[name.Lexeme()] = value
 		return true
 	}
 
@@ -15,6 +17,15 @@ func (e *Environment) Assign(name string, value any) bool {
 		return e.enclosing.Assign(name, value)
 	}
 
+	return false
+}
+
+func (e *Environment) AssignAt(distance int, name tokenizer.Token, value any) bool {
+	ancestor := e.Ancestor(distance)
+	if ancestor != nil {
+		ancestor.Assign(name, value)
+		return true
+	}
 	return false
 }
 
@@ -30,4 +41,17 @@ func (e *Environment) Get(name string) (any, bool) {
 	}
 
 	return nil, false
+}
+
+func (e *Environment) GetAt(distance int, name string) (any, bool) {
+	v, ok := e.Ancestor(distance).values[name]
+	return v, ok
+}
+
+func (e *Environment) Ancestor(distance int) *Environment {
+	env := *e
+	for range distance {
+		env = *e.enclosing
+	}
+	return &env
 }

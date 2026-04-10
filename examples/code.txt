@@ -1,7 +1,6 @@
-var a = (fun (a){
-    return fun () {
-        return a*5;
-    };
-})(2);
+fun getName() {
+    return input("enter your name: ");
+}
 
-log(a());
+var a = getName();
+log("your name is:", a);

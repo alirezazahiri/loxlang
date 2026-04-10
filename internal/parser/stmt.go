@@ -35,13 +35,13 @@ func (p *Parser) declaration() ast.Stmt {
 
 // funDecl -> "fun" function ;
 func (p *Parser) funDecl() ast.Stmt {
-	return p.function(constants.Function)
+	return p.function(constants.CallableKindFunction)
 }
 
 // function -> IDENTIFIER "(" parameters? ")" block ;
 func (p *Parser) function(kind constants.CallableKind) ast.Stmt {
 	name := p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectedIdenAfterFun)
-	params, body := p.extractParamsAndBody(constants.Function)
+	params, body := p.extractParamsAndBody(constants.CallableKindFunction)
 	return ast.NewFunction(*name, params, body)
 }
 

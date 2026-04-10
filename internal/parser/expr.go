@@ -33,7 +33,7 @@ func (p *Parser) expression() ast.Expr {
 
 // lambda -> "fun" "(" parameters? ")" block ;
 func (p *Parser) lambda() ast.Expr {
-	params, body := p.extractParamsAndBody(constants.AnonymousFunction)
+	params, body := p.extractParamsAndBody(constants.CallableKindAnonymousFunction)
 	return ast.NewLambda(params, body)
 }
 

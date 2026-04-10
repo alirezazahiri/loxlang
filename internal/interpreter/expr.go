@@ -94,10 +94,16 @@ func (i *Interpreter) VisitVariableExpr(expr *ast.Variable) any {
 
 func (i *Interpreter) VisitAssignExpr(expr *ast.Assign) any {
 	value := i.evaluate(expr.Value)
-
-	ok := i.env.Assign(expr.Name.Lexeme(), value)
-
+	distance, ok := i.locals[expr]
+	success := false
+	
 	if !ok {
+		success = i.env.AssignAt(distance, expr.Name, value)
+	} else {
+		success = i.globals.Assign(expr.Name, value)
+	}
+
+	if !success {
 		i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrCannotAssignToNonDeclaredVariables))
 	}
 
