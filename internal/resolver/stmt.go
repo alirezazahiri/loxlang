@@ -70,16 +70,17 @@ func (r *Resolver) VisitPrintStmt(stmt *ast.Print) any {
 }
 
 func (r *Resolver) VisitVarStmt(stmt *ast.Var) any {
+	r.declare(stmt.Name)
+	
 	prev := r.initializing
     r.initializing = &stmt.Name
-
+	
 	if stmt.Initializer != nil {
 		r.Resolve(stmt.Initializer)
 	}
-
+	
 	r.initializing = prev
-
-	r.declare(stmt.Name)
+	
 	r.define(stmt.Name)
 	return nil
 }

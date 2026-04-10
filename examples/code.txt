@@ -1,6 +1,9 @@
 fun getName() {
-    return input("enter your name: ");
+    return input("name: ") + " " + getLastName();
 }
 
-var a = getName();
-log("your name is:", a);
+fun getLastName() {
+    return input("lastname: ");
+}
+
+print getName();

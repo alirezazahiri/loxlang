@@ -59,11 +59,6 @@ func (r *Resolver) VisitVariableExpr(expr *ast.Variable) any {
         }
     }
 	
-	v, ok := r.scopes.Peek().Get(expr.Name.Lexeme())
-	if !r.scopes.IsEmpty() &&
-		ok && !v {
-		r.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrCannotReadLocalVarInItsOwnInitializer(expr.Name.Lexeme())))
-	}
 	r.resolveLocal(expr, expr.Name)
 	return nil
 }
