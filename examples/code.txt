@@ -1,9 +1,7 @@
-fun getName() {
-    return input("name: ") + " " + getLastName();
+class Bacon {
+    eat() {
+        print "Crunch crunch crunch!";
+    }
 }
 
-fun getLastName() {
-    return input("lastname: ");
-}
-
-print getName();
+Bacon().eat(); 

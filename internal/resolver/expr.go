@@ -29,7 +29,6 @@ func (r *Resolver) VisitGroupingExpr(expr *ast.Grouping) any {
 }
 
 func (r *Resolver) VisitLiteralExpr(expr *ast.Literal) any {
-
 	return nil
 }
 
@@ -38,7 +37,9 @@ func (r *Resolver) VisitUnaryExpr(expr *ast.Unary) any {
 	return nil
 }
 
-func (r *Resolver) VisitLambdaExpr(expr *ast.Lambda) any { return nil }
+func (r *Resolver) VisitLambdaExpr(expr *ast.Lambda) any {
+	return nil
+}
 
 func (r *Resolver) VisitCallExpr(expr *ast.Call) any {
 	r.Resolve(expr.Callee)
@@ -50,15 +51,26 @@ func (r *Resolver) VisitCallExpr(expr *ast.Call) any {
 
 func (r *Resolver) VisitVariableExpr(expr *ast.Variable) any {
 	if r.initializing != nil && expr.Name.Lexeme() == r.initializing.Lexeme() {
-        if !r.existsInOuterScopes(expr.Name.Lexeme()) {
-            r.report(loxerror.NewRuntimeError(
-                expr.Name.Line(),
-                expr.Name.Lexeme(),
-                loxerror.ErrCannotReadLocalVarInItsOwnInitializer(expr.Name.Lexeme()),
-            ))
-        }
-    }
-	
+		if !r.existsInOuterScopes(expr.Name.Lexeme()) {
+			r.report(loxerror.NewRuntimeError(
+				expr.Name.Line(),
+				expr.Name.Lexeme(),
+				loxerror.ErrCannotReadLocalVarInItsOwnInitializer(expr.Name.Lexeme()),
+			))
+		}
+	}
+
 	r.resolveLocal(expr, expr.Name)
+	return nil
+}
+
+func (r *Resolver) VisitGetExpr(expr *ast.Get) any {
+	r.Resolve(expr.Object)
+	return nil
+}
+
+func (r *Resolver) VisitSetExpr(expr *ast.Set) any {
+	r.Resolve(expr.Value)
+	r.Resolve(expr.Object)
 	return nil
 }

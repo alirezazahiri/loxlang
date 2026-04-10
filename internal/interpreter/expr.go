@@ -96,7 +96,7 @@ func (i *Interpreter) VisitAssignExpr(expr *ast.Assign) any {
 	value := i.evaluate(expr.Value)
 	distance, ok := i.locals[expr]
 	success := false
-	
+
 	if !ok {
 		success = i.env.AssignAt(distance, expr.Name, value)
 	} else {
@@ -161,4 +161,33 @@ func (i *Interpreter) VisitLambdaExpr(expr *ast.Lambda) any {
 		i.CallableCallback(closure, params, body),
 		arity,
 	)
+}
+
+func (i *Interpreter) VisitGetExpr(expr *ast.Get) any {
+	object := i.evaluate(expr.Object)
+
+	if instance, ok := object.(*ClassInstance); ok {
+		v, exists := instance.Get(expr.Name)
+		if !exists {
+			i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrUndefinedProperty(expr.Name.Lexeme())))
+		}
+		return v
+	}
+
+	i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrOnlyInstancesHaveProps))
+
+	return nil
+}
+
+func (i *Interpreter) VisitSetExpr(expr *ast.Set) any {
+	object := i.evaluate(expr.Object)
+
+	if instance, ok := object.(*ClassInstance); ok {
+		value := i.evaluate(expr.Value)
+		instance.Set(expr.Name, value)
+		return value
+	}
+
+	i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrOnlyInstancesHaveProps))
+	return nil
 }

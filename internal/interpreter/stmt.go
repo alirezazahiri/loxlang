@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"loxlang/internal/ast"
 	"loxlang/internal/environment"
+	"loxlang/pkg/interfaces"
 )
 
 func (i *Interpreter) VisitExpressionStmt(stmt *ast.Expression) any {
@@ -84,14 +85,15 @@ func (i *Interpreter) VisitFunctionStmt(stmt *ast.Function) any {
 
 	arity := len(params)
 
-	i.RegisterCallable(
-		NewCallable(
-			name.Lexeme(),
-			i.CallableCallback(closure, params, body),
-			arity,
-		))
+	cb := NewCallable(
+		name.Lexeme(),
+		i.CallableCallback(closure, params, body),
+		arity,
+	)
 
-	return nil
+	i.RegisterCallable(cb)
+
+	return cb
 }
 
 func (i *Interpreter) VisitReturnStmt(stmt *ast.Return) any {
@@ -101,4 +103,20 @@ func (i *Interpreter) VisitReturnStmt(stmt *ast.Return) any {
 	}
 	NewReturn(val).Throw()
 	return nil
+}
+
+func (i *Interpreter) VisitClassStmt(stmt *ast.Class) any {
+	i.env.Define(stmt.Name.Lexeme(), nil)
+	
+	closure := i.env
+	methods:= make(map[string]interfaces.LoxCallable, 0)
+	for _, m := range stmt.Methods {
+		name := m.Name.Lexeme()
+		methods[name] = NewCallable(name, i.CallableCallback(closure, m.Params, m.Body), len(m.Params))
+	}
+
+	class := NewClass(stmt.Name.Lexeme(), methods)
+	i.env.Assign(stmt.Name, class)
+
+	return nil 
 }

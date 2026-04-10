@@ -33,11 +33,16 @@ const (
 	ErrExpectedOpeningParenAfterFor                 LoxErrorMessage = "expected \"(\" after \"for\""
 	ErrCanOnlyCallFunctionsOrClasses                LoxErrorMessage = "can only call functions or classes"
 	ErrExpectedIdenAfterFun                         LoxErrorMessage = "expected identifier after  \"fun\" keyword"
+	ErrExpectedIdenForClassMethods                  LoxErrorMessage = "class methods require an identifier"
+	ErrExpectedOpeningBraceBeforeClassBody          LoxErrorMessage = "expected \"{\" before class body"
+	ErrExpectedClosingBraceAfterClassBody           LoxErrorMessage = "expected \"}\" after class body"
 	ErrExpectedClosingParenAfterParams              LoxErrorMessage = "expected \")\" after parameters"
 	ErrExpectParameterName                          LoxErrorMessage = "expected name for parameter"
 	ErrExprectedOpeningParenAfterAnonymousFunc      LoxErrorMessage = "expected \"(\" after anonymous function declaration (hint: add after \"fun\" keyword)"
 	ErrExprectedClosingBraceBeforeAnonymousFuncBody LoxErrorMessage = "expected \"}\" before anonymous function body"
 	ErrUnexpectedReturnFromNonFunction              LoxErrorMessage = "cannot return outside of a function"
+	ErrExpectedPropertyNameAfterDot                 LoxErrorMessage = "expected property after \".\""
+	ErrOnlyInstancesHaveProps                       LoxErrorMessage = "only instances of classes have properties"
 )
 
 func ErrUnexpectedToken(received, expected string) LoxErrorMessage {
@@ -78,4 +83,8 @@ func ErrCannotReadLocalVarInItsOwnInitializer(name string) LoxErrorMessage {
 
 func ErrDuplicateVarDeclaration(name string) LoxErrorMessage {
 	return LoxErrorMessage(fmt.Sprintf("variable with name %q already declared in this scope", name))
+}
+
+func ErrUndefinedProperty(name string) LoxErrorMessage {
+	return LoxErrorMessage(fmt.Sprintf("undefined property %q", name))
 }

@@ -49,6 +49,14 @@ func (r *Resolver) VisitFunctionStmt(stmt *ast.Function) any {
 	return nil
 }
 
+func (r *Resolver) VisitClassStmt(stmt *ast.Class) any {
+	r.declare(stmt.Name)
+	r.define(stmt.Name)
+
+	r.resolveClass(*stmt)
+	return nil
+}
+
 func (r *Resolver) VisitExpressionStmt(stmt *ast.Expression) any {
 	r.Resolve(stmt.Expression)
 	return nil

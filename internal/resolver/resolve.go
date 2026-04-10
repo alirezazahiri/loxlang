@@ -48,6 +48,12 @@ func (r *Resolver) resolveFunction(stmt ast.Function, kind constants.CallableKin
 	r.currentFunction = enclosingFn
 }
 
+func (r *Resolver) resolveClass(stmt ast.Class) {
+	for _, fn := range stmt.Methods {
+		r.resolveFunction(fn, constants.CallableKindMethod)
+	}
+}
+
 func (r *Resolver) beginScope() {
 	r.scopes = append(r.scopes, make(scope.Scope))
 }

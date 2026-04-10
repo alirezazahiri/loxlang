@@ -157,6 +157,44 @@ func (e *Call) Accept(visitor ExprVisitor) any {
 	return visitor.VisitCallExpr(e)
 }
 
+type Get struct {
+	Object Expr
+	Name   tokenizer.Token
+}
+
+func NewGet(object Expr, name tokenizer.Token) *Get {
+	return &Get{
+		Object: object,
+		Name:   name,
+	}
+}
+
+func (*Get) expr() {}
+
+func (e *Get) Accept(visitor ExprVisitor) any {
+	return visitor.VisitGetExpr(e)
+}
+
+type Set struct {
+	Object Expr
+	Name   tokenizer.Token
+	Value  Expr
+}
+
+func NewSet(object Expr, name tokenizer.Token, value Expr) *Set {
+	return &Set{
+		Object: object,
+		Name:   name,
+		Value:  value,
+	}
+}
+
+func (*Set) expr() {}
+
+func (e *Set) Accept(visitor ExprVisitor) any {
+	return visitor.VisitSetExpr(e)
+}
+
 type Variable struct {
 	Name tokenizer.Token
 }
@@ -182,5 +220,7 @@ type ExprVisitor interface {
 	VisitUnaryExpr(expr *Unary) any
 	VisitLambdaExpr(expr *Lambda) any
 	VisitCallExpr(expr *Call) any
+	VisitGetExpr(expr *Get) any
+	VisitSetExpr(expr *Set) any
 	VisitVariableExpr(expr *Variable) any
 }

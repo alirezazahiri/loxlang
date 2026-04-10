@@ -37,7 +37,7 @@ func (p *Parser) lambda() ast.Expr {
 	return ast.NewLambda(params, body)
 }
 
-// assignment -> IDENTIFIER "=" assignment | logic_or
+// assignment -> ( call "." )? IDENTIFIER "=" assignment | logic_or
 func (p *Parser) assignment() ast.Expr {
 	expr := p.logicOr()
 	if p.match(tokenizer.EQUAL) {
@@ -47,6 +47,8 @@ func (p *Parser) assignment() ast.Expr {
 		if variable, ok := expr.(*ast.Variable); ok {
 			name := variable.Name
 			return ast.NewAssign(name, value)
+		} else if get, ok := expr.(*ast.Get); ok {
+			return ast.NewSet(get.Object, get.Name, value)
 		}
 
 		p.report(equals, loxerror.ErrUnexpectedAssignmentExpression)
@@ -136,12 +138,15 @@ func (p *Parser) unary() ast.Expr {
 	return p.call()
 }
 
-// call -> primarry ( "(" arguments? ")" )* ;
+// call -> primarry ( "(" arguments? ")" | "." IDENTIFIER )* ;
 func (p *Parser) call() ast.Expr {
 	expr := p.primary()
 	for {
 		if p.match(tokenizer.LEFT_PAREN) {
 			expr = p.finishCall(expr)
+		} else if p.match(tokenizer.DOT) {
+			iden := p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectedPropertyNameAfterDot)
+			expr = ast.NewGet(expr, *iden)
 		} else {
 			break
 		}

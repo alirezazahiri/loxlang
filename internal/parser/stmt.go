@@ -22,8 +22,11 @@ type StmtParser interface {
 	block() []ast.Stmt
 }
 
-// declaration -> funDecl | varDecl | statement ;
+// declaration -> classDel | funDecl | varDecl | statement ;
 func (p *Parser) declaration() ast.Stmt {
+	if p.match(tokenizer.CLASS) {
+		return p.classDecl()
+	}
 	if p.match(tokenizer.FUN) {
 		return p.funDecl()
 	}
@@ -33,13 +36,28 @@ func (p *Parser) declaration() ast.Stmt {
 	return p.statement()
 }
 
+// classDecl -> "class" IDENTIFIER "{" function* "}" ;
+func (p *Parser) classDecl() ast.Stmt {
+	className := p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectedIdenForClassMethods)
+	
+	p.consume(tokenizer.LEFT_BRACE, loxerror.ErrExpectedOpeningBraceBeforeClassBody)
+	
+	methods := make([]ast.Function, 0)
+	for p.check(tokenizer.IDENTIFIER) {
+		methods = append(methods, *p.function(constants.CallableKindMethod))
+	}
+	p.consume(tokenizer.RIGHT_BRACE, loxerror.ErrExpectedClosingBraceAfterClassBody)
+	
+	return ast.NewClass(*className, methods)
+}
+
 // funDecl -> "fun" function ;
 func (p *Parser) funDecl() ast.Stmt {
 	return p.function(constants.CallableKindFunction)
 }
 
 // function -> IDENTIFIER "(" parameters? ")" block ;
-func (p *Parser) function(kind constants.CallableKind) ast.Stmt {
+func (p *Parser) function(kind constants.CallableKind) *ast.Function {
 	name := p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectedIdenAfterFun)
 	params, body := p.extractParamsAndBody(constants.CallableKindFunction)
 	return ast.NewFunction(*name, params, body)
@@ -102,7 +120,7 @@ func (p *Parser) exprStatement() ast.Stmt {
 	return ast.NewExpression(expr)
 }
 
-// "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;
+// forStmt -> "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;
 func (p *Parser) forStatement() ast.Stmt {
 	p.consume(tokenizer.LEFT_PAREN, loxerror.ErrExpectedOpeningParenAfterFor)
 
@@ -137,7 +155,7 @@ func (p *Parser) forStatement() ast.Stmt {
 	return ast.NewFor(initializer, condition, modifier, body)
 }
 
-// "if" "(" expression ")" statement ( "else" statement )? ;
+// ifStmt -> "if" "(" expression ")" statement ( "else" statement )? ;
 func (p *Parser) ifStatement() ast.Stmt {
 	p.consume(tokenizer.LEFT_PAREN, loxerror.ErrExpectedOpeningParenAfterIf)
 	expr := p.expression()
@@ -154,7 +172,7 @@ func (p *Parser) ifStatement() ast.Stmt {
 // return -> "return" expression? ";" ;
 func (p *Parser) returnStatement() ast.Stmt {
 	keyword := *p.previous()
-	var value ast.Expr = nil  
+	var value ast.Expr = nil
 	if !p.check(tokenizer.SEMICOLON) {
 		value = p.expression()
 	}

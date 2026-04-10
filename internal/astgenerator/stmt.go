@@ -6,6 +6,7 @@ func NewStmt() *AstGenerator {
 		"For    		: Stmt initializer, Expr condition, Expr modifier, Stmt body",
 		"While    		: Expr condition, Stmt then",
 		"Block   		: []Stmt statements",
+		"Class   		: tokenizer.Token name, []Function methods",
 		"Function   	: tokenizer.Token name, []tokenizer.Token params, []Stmt body",
 		"Expression   	: Expr expression",
 		"Return   		: tokenizer.Token keyword, Expr value",

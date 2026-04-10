@@ -100,3 +100,14 @@ func (p *AstPrinter) VisitFunctionStmt(stmt *ast.Function) any {
 func (p *AstPrinter) VisitReturnStmt(stmt *ast.Return) any {
 	return p.parenthesize("return", stmt.Value)
 }
+
+func (p *AstPrinter) VisitClassStmt(stmt *ast.Class) any {
+	var b strings.Builder
+
+	b.WriteString(fmt.Sprintf("(class::%s ", stmt.Name.Lexeme()))
+	for _, method := range stmt.Methods {
+		b.WriteString(method.Accept(p).(string))
+	}
+	b.WriteString(" )")
+	return b.String()
+}

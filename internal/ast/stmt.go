@@ -87,6 +87,24 @@ func (e *Block) Accept(visitor StmtVisitor) any {
 	return visitor.VisitBlockStmt(e)
 }
 
+type Class struct {
+	Name    tokenizer.Token
+	Methods []Function
+}
+
+func NewClass(name tokenizer.Token, methods []Function) *Class {
+	return &Class{
+		Name:    name,
+		Methods: methods,
+	}
+}
+
+func (*Class) stmt() {}
+
+func (e *Class) Accept(visitor StmtVisitor) any {
+	return visitor.VisitClassStmt(e)
+}
+
 type Function struct {
 	Name   tokenizer.Token
 	Params []tokenizer.Token
@@ -180,6 +198,7 @@ type StmtVisitor interface {
 	VisitForStmt(stmt *For) any
 	VisitWhileStmt(stmt *While) any
 	VisitBlockStmt(stmt *Block) any
+	VisitClassStmt(stmt *Class) any
 	VisitFunctionStmt(stmt *Function) any
 	VisitExpressionStmt(stmt *Expression) any
 	VisitReturnStmt(stmt *Return) any
