@@ -48,6 +48,7 @@ func (f *LoxFunction) Call(i *Interpreter, args []any) (res any) {
 					value = v
 				}
 				res = value
+				return
 			}
 			panic(r)
 		}
