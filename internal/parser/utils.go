@@ -93,8 +93,6 @@ func (p *Parser) synchronize() {
 }
 
 func (p *Parser) extractParamsAndBody(kind constants.CallableKind) ([]tokenizer.Token, []ast.Stmt) {
-	p.consume(tokenizer.LEFT_PAREN, loxerror.ErrExpectedOpeningParenAfterCallableKindIden(kind))
-
 	var params []tokenizer.Token
 
 	if !p.check(tokenizer.RIGHT_PAREN) {

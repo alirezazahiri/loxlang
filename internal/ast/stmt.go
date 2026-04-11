@@ -106,16 +106,20 @@ func (e *Class) Accept(visitor StmtVisitor) any {
 }
 
 type Function struct {
-	Name   tokenizer.Token
-	Params []tokenizer.Token
-	Body   []Stmt
+	Name     tokenizer.Token
+	Params   []tokenizer.Token
+	Body     []Stmt
+	IsGetter bool
+	IsSetter bool
 }
 
-func NewFunction(name tokenizer.Token, params []tokenizer.Token, body []Stmt) *Function {
+func NewFunction(name tokenizer.Token, params []tokenizer.Token, body []Stmt, IsGetter bool, IsSetter bool) *Function {
 	return &Function{
-		Name:   name,
-		Params: params,
-		Body:   body,
+		Name:     name,
+		Params:   params,
+		Body:     body,
+		IsGetter: IsGetter,
+		IsSetter: IsSetter,
 	}
 }
 

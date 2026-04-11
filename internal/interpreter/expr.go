@@ -152,7 +152,7 @@ func (i *Interpreter) VisitLambdaExpr(expr *ast.Lambda) any {
 	closure := i.env
 
 	return NewLoxFunction(
-		ast.NewFunction(tokenizer.NewToken(tokenizer.IDENTIFIER, "", nil, -1), expr.Params, expr.Body),
+		ast.NewFunction(tokenizer.NewToken(tokenizer.IDENTIFIER, "", nil, -1), expr.Params, expr.Body, false, false),
 		closure,
 		false,
 	)
@@ -162,11 +162,10 @@ func (i *Interpreter) VisitGetExpr(expr *ast.Get) any {
 	object := i.evaluate(expr.Object)
 
 	if instance, ok := object.(*ClassInstance); ok {
-		v, exists := instance.Get(i.env, expr.Name)
-		if !exists {
-			i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrUndefinedProperty(expr.Name.Lexeme())))
+		if v, exists := instance.Get(i, expr.Name); exists {
+			return v
 		}
-		return v
+		i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrUndefinedProperty(expr.Name.Lexeme())))
 	}
 
 	i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrOnlyInstancesHaveProps))
@@ -179,6 +178,11 @@ func (i *Interpreter) VisitSetExpr(expr *ast.Set) any {
 
 	if instance, ok := object.(*ClassInstance); ok {
 		value := i.evaluate(expr.Value)
+		if setter, ok := instance.class.FindSetter(expr.Name.Lexeme()); ok {
+			value := setter.Bind(instance).Call(i, []any{value})
+			// instance.Set(setter.declaration.Name, value)
+			return value
+		}
 		instance.Set(expr.Name, value)
 		return value
 	}

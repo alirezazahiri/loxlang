@@ -2,7 +2,6 @@ package interpreter
 
 import (
 	"fmt"
-	"loxlang/internal/environment"
 	"loxlang/internal/tokenizer"
 )
 
@@ -18,11 +17,19 @@ func NewClassInstance(class *Class) *ClassInstance {
 	}
 }
 
-func (ci *ClassInstance) Get(closure *environment.Environment, property tokenizer.Token) (any, bool) {
+func (ci *ClassInstance) Get(i *Interpreter, property tokenizer.Token) (any, bool) {
 	key := property.Lexeme()
 
 	if v, ok := ci.fields[key]; ok {
 		return v, true
+	}
+	
+	if g, ok := ci.class.FindSetter(key); ok {
+		return g.Bind(ci), true
+	}
+
+	if g, ok := ci.class.FindGetter(key); ok {
+		return g.Bind(ci).Call(i, nil), true
 	}
 
 	if m, ok := ci.class.FindMethod(key); ok {

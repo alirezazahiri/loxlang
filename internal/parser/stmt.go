@@ -36,18 +36,23 @@ func (p *Parser) declaration() ast.Stmt {
 	return p.statement()
 }
 
-// classDecl -> "class" IDENTIFIER "{" function* "}" ;
+// classDecl -> "class" IDENTIFIER "{" ( function | setter )* "}" ;
 func (p *Parser) classDecl() ast.Stmt {
 	className := p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectedIdenForClassMethods)
-	
+
 	p.consume(tokenizer.LEFT_BRACE, loxerror.ErrExpectedOpeningBraceBeforeClassBody)
-	
+
 	methods := make([]ast.Function, 0)
-	for p.check(tokenizer.IDENTIFIER) {
-		methods = append(methods, *p.function(constants.CallableKindMethod))
+	for p.check(tokenizer.IDENTIFIER) || p.check(tokenizer.SET) {
+		switch p.peek().Type() {
+		case tokenizer.SET:
+			methods = append(methods, *p.setter())
+		case tokenizer.IDENTIFIER:
+			methods = append(methods, *p.function(constants.CallableKindSetter))
+		}
 	}
 	p.consume(tokenizer.RIGHT_BRACE, loxerror.ErrExpectedClosingBraceAfterClassBody)
-	
+
 	return ast.NewClass(*className, methods)
 }
 
@@ -56,11 +61,32 @@ func (p *Parser) funDecl() ast.Stmt {
 	return p.function(constants.CallableKindFunction)
 }
 
-// function -> IDENTIFIER "(" parameters? ")" block ;
+// function -> "set"? IDENTIFIER ( "(" parameters? ")" )? block ;
 func (p *Parser) function(kind constants.CallableKind) *ast.Function {
 	name := p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectedIdenAfterFun)
-	params, body := p.extractParamsAndBody(constants.CallableKindFunction)
-	return ast.NewFunction(*name, params, body)
+	if p.match(tokenizer.LEFT_PAREN) {
+		params, body := p.extractParamsAndBody(kind)
+		return ast.NewFunction(*name, params, body, false, false)
+	} else if p.match(tokenizer.LEFT_BRACE) {
+		return ast.NewFunction(*name, nil, p.block(), true, false)
+	}
+	if !p.match(tokenizer.LEFT_PAREN, tokenizer.LEFT_BRACE) {
+		p.report(p.peek(), loxerror.ErrExpectedOpeningParenAfterCallableKindIden(kind))
+	}
+	return nil
+}
+
+// setter -> "set" IDENTIFIER "(" param ")" block ;
+func (p *Parser) setter() *ast.Function {
+	p.consume(tokenizer.SET, loxerror.ErrExpectedSetKeywordBeforeSet)
+	name := p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectedIdenAfterSet)
+	p.consume(tokenizer.LEFT_PAREN, loxerror.ErrExpectedOpeningParenAfterCallableKindIden(constants.CallableKindSetter))
+	params, body := p.extractParamsAndBody(constants.CallableKindSetter)
+	if len(params) != 1 {
+		p.report(name, loxerror.ErrSettersExpectExactlyOneParam)
+	}
+	name.SetLexeme("@set_" + name.Lexeme())
+	return ast.NewFunction(*name, params, body, false, true)
 }
 
 // parameters -> IDENTIFIER ( "," IDENTIFIER )* ;

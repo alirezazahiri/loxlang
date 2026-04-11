@@ -7,7 +7,7 @@ func NewStmt() *AstGenerator {
 		"While    		: Expr condition, Stmt then",
 		"Block   		: []Stmt statements",
 		"Class   		: tokenizer.Token name, []Function methods",
-		"Function   	: tokenizer.Token name, []tokenizer.Token params, []Stmt body",
+		"Function   	: tokenizer.Token name, []tokenizer.Token params, []Stmt body, bool IsGetter, bool IsSetter",
 		"Expression   	: Expr expression",
 		"Return   		: tokenizer.Token keyword, Expr value",
 		"Print   		: Expr expression",

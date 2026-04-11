@@ -77,7 +77,7 @@ func (i *Interpreter) VisitForStmt(stmt *ast.For) any {
 
 func (i *Interpreter) VisitFunctionStmt(stmt *ast.Function) any {
 	closure := i.env
-	
+
 	fn := NewLoxFunction(
 		stmt,
 		closure,
@@ -102,12 +102,23 @@ func (i *Interpreter) VisitClassStmt(stmt *ast.Class) any {
 	i.env.Define(stmt.Name.Lexeme(), nil)
 
 	closure := i.env
+	
 	methods := make(map[string]*LoxFunction, 0)
+	getters := make(map[string]*LoxFunction, 0)
+	setters := make(map[string]*LoxFunction, 0)
+
 	for _, m := range stmt.Methods {
 		name := m.Name.Lexeme()
-		methods[name] = NewLoxFunction(&m, closure, name == "init")
+		if m.IsGetter {
+			getters[name] = NewLoxFunction(&m, closure, false)
+		} else if m.IsSetter {
+			setters[name] = NewLoxFunction(&m, closure, false)
+		} else {
+			methods[name] = NewLoxFunction(&m, closure, name == "init")
+		}
 	}
-	class := NewClass(stmt.Name.Lexeme(), methods)
+
+	class := NewClass(stmt.Name.Lexeme(), methods, getters, setters)
 	i.env.Assign(stmt.Name, class)
 
 	return nil

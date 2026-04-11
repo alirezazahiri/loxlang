@@ -26,6 +26,10 @@ func (t *Token) Lexeme() string {
 	return t.lexeme
 }
 
+func (t *Token) SetLexeme(name string) {
+	t.lexeme = name
+}
+
 func (t *Token) Literal() any {
 	return t.literal
 }

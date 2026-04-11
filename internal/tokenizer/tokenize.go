@@ -1,5 +1,7 @@
 package tokenizer
 
+import "fmt"
+
 func (t *Tokenizer) Tokenize() []Token {
 	for !t.isAtEnd() {
 		t.start = t.current
@@ -12,6 +14,10 @@ func (t *Tokenizer) Tokenize() []Token {
 		literal:   nil,
 		line:      t.line,
 	})
+
+	for _, tok := range t.tokens {
+		fmt.Println(tok)
+	}
 
 	return t.tokens
 }

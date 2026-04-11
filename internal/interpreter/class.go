@@ -7,17 +7,31 @@ import (
 type Class struct {
 	Name    string
 	Methods map[string]*LoxFunction
+	Getters map[string]*LoxFunction
+	Setters map[string]*LoxFunction
 }
 
-func NewClass(name string, methods map[string]*LoxFunction) *Class {
+func NewClass(name string, methods map[string]*LoxFunction, getters map[string]*LoxFunction, setters map[string]*LoxFunction) *Class {
 	return &Class{
 		Name:    name,
 		Methods: methods,
+		Getters: getters,
+		Setters: setters,
 	}
 }
 
 func (c *Class) FindMethod(name string) (*LoxFunction, bool) {
 	m, ok := c.Methods[name]
+	return m, ok
+}
+
+func (c *Class) FindGetter(name string) (*LoxFunction, bool) {
+	m, ok := c.Getters[name]
+	return m, ok
+}
+
+func (c *Class) FindSetter(name string) (*LoxFunction, bool) {
+	m, ok := c.Setters[name]
 	return m, ok
 }
 

@@ -82,6 +82,8 @@ const (
 	BREAK
 	// continue 
 	CONTINUE
+	// SET
+	SET
 	// super
 	SUPER
 	// this
