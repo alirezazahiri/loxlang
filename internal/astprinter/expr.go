@@ -82,3 +82,7 @@ func (p *AstPrinter) VisitGetExpr(expr *ast.Get) any {
 func (p *AstPrinter) VisitSetExpr(expr *ast.Set) any {
 	return p.parenthesize("set", expr)
 }
+
+func (p *AstPrinter) VisitThisExpr(expr *ast.This) any {
+	return p.parenthesize("this", expr)
+}

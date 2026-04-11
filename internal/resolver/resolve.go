@@ -10,6 +10,7 @@ import (
 
 // Resolve panics if there is a resolution error
 func (r *Resolver) Resolve(resolvable any) {
+	
 	switch resolvable.(type) {
 	case []ast.Stmt:
 		for _, statement := range resolvable.([]ast.Stmt) {
@@ -50,7 +51,11 @@ func (r *Resolver) resolveFunction(stmt ast.Function, kind constants.CallableKin
 
 func (r *Resolver) resolveClass(stmt ast.Class) {
 	for _, fn := range stmt.Methods {
-		r.resolveFunction(fn, constants.CallableKindMethod)
+		kind := constants.CallableKindMethod
+		if (fn.Name.Lexeme() == "init") {
+			kind = constants.CallableKindInitializer
+		}
+		r.resolveFunction(fn, kind)
 	}
 }
 

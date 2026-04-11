@@ -2,31 +2,39 @@ package interpreter
 
 import (
 	"fmt"
-	"loxlang/pkg/interfaces"
 )
 
 type Class struct {
-	Name string
-	Methods map[string]interfaces.LoxCallable
+	Name    string
+	Methods map[string]*LoxFunction
 }
 
-func NewClass(name string, methods map[string]interfaces.LoxCallable) *Class {
+func NewClass(name string, methods map[string]*LoxFunction) *Class {
 	return &Class{
-		Name: name,
+		Name:    name,
 		Methods: methods,
 	}
 }
 
-func (c *Class) FindMethod(key string) (interfaces.LoxCallable, bool) {
-	m, ok := c.Methods[key]
+func (c *Class) FindMethod(name string) (*LoxFunction, bool) {
+	m, ok := c.Methods[name]
 	return m, ok
 }
 
-func (c *Class) Call(args []any) any {
-	return NewClassInstance(c)
+func (c *Class) Call(i *Interpreter, args []any) any {
+	instance := NewClassInstance(c)
+
+	if initializer, ok := c.FindMethod("init"); ok {
+		initializer.Bind(instance).Call(i, args)
+	}
+
+	return instance
 }
 
 func (c *Class) Arity() int {
+	if initializer, ok := c.FindMethod("init"); ok {
+		return initializer.Arity()
+	}
 	return 0
 }
 

@@ -2,6 +2,7 @@ package resolver
 
 import (
 	"loxlang/internal/ast"
+	"loxlang/pkg/constants"
 	"loxlang/pkg/loxerror"
 )
 
@@ -72,5 +73,13 @@ func (r *Resolver) VisitGetExpr(expr *ast.Get) any {
 func (r *Resolver) VisitSetExpr(expr *ast.Set) any {
 	r.Resolve(expr.Value)
 	r.Resolve(expr.Object)
+	return nil
+}
+
+func (r *Resolver) VisitThisExpr(expr *ast.This) any {
+	if r.currentClass == constants.ClassKindNone {
+		r.report(loxerror.NewRuntimeError(expr.Keyword.Line(), expr.Keyword.Lexeme(), loxerror.ErrUnexpectedThisOutsideOfClass))
+	}
+	r.resolveLocal(expr, expr.Keyword)
 	return nil
 }

@@ -2,6 +2,7 @@ package resolver
 
 import (
 	"loxlang/internal/ast"
+	"loxlang/internal/tokenizer"
 	"loxlang/pkg/constants"
 	"loxlang/pkg/loxerror"
 )
@@ -50,10 +51,21 @@ func (r *Resolver) VisitFunctionStmt(stmt *ast.Function) any {
 }
 
 func (r *Resolver) VisitClassStmt(stmt *ast.Class) any {
+	enclosingClass := r.currentClass
+	r.currentClass = constants.ClassKindClass
+
 	r.declare(stmt.Name)
 	r.define(stmt.Name)
 
+	r.beginScope()
+
+	r.scopes.Peek().Put(tokenizer.KeywordLexemes[tokenizer.THIS], true)
 	r.resolveClass(*stmt)
+
+	r.endScope()
+
+	r.currentClass = enclosingClass
+
 	return nil
 }
 
@@ -67,6 +79,9 @@ func (r *Resolver) VisitReturnStmt(stmt *ast.Return) any {
 		r.report(loxerror.NewRuntimeError(stmt.Keyword.Line(), stmt.Keyword.Lexeme(), loxerror.ErrUnexpectedReturnFromNonFunction))
 	}
 	if stmt.Value != nil {
+		if r.currentFunction == constants.CallableKindInitializer {
+			r.report(loxerror.NewRuntimeError(stmt.Keyword.Line(), stmt.Keyword.Lexeme(), loxerror.ErrUnexpectedInitReturn))
+		}
 		r.Resolve(stmt.Value)
 	}
 	return nil
@@ -79,16 +94,16 @@ func (r *Resolver) VisitPrintStmt(stmt *ast.Print) any {
 
 func (r *Resolver) VisitVarStmt(stmt *ast.Var) any {
 	r.declare(stmt.Name)
-	
+
 	prev := r.initializing
-    r.initializing = &stmt.Name
-	
+	r.initializing = &stmt.Name
+
 	if stmt.Initializer != nil {
 		r.Resolve(stmt.Initializer)
 	}
-	
+
 	r.initializing = prev
-	
+
 	r.define(stmt.Name)
 	return nil
 }

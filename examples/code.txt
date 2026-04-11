@@ -1,7 +1,9 @@
-class Bacon {
-    eat() {
-        print "Crunch crunch crunch!";
+
+class Person {
+    init(name) {
+        print this;
     }
 }
 
-Bacon().eat(); 
+var a = Person("alireza");
+var b = a.init("reza");

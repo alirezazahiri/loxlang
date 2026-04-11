@@ -41,8 +41,10 @@ const (
 	ErrExprectedOpeningParenAfterAnonymousFunc      LoxErrorMessage = "expected \"(\" after anonymous function declaration (hint: add after \"fun\" keyword)"
 	ErrExprectedClosingBraceBeforeAnonymousFuncBody LoxErrorMessage = "expected \"}\" before anonymous function body"
 	ErrUnexpectedReturnFromNonFunction              LoxErrorMessage = "cannot return outside of a function"
+	ErrUnexpectedInitReturn                         LoxErrorMessage = "cannot return a value from an initializer"
 	ErrExpectedPropertyNameAfterDot                 LoxErrorMessage = "expected property after \".\""
 	ErrOnlyInstancesHaveProps                       LoxErrorMessage = "only instances of classes have properties"
+	ErrUnexpectedThisOutsideOfClass                 LoxErrorMessage = "cannot use 'this' outside of a class"
 )
 
 func ErrUnexpectedToken(received, expected string) LoxErrorMessage {

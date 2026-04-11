@@ -3,7 +3,6 @@ package interpreter
 import (
 	"loxlang/internal/ast"
 	"loxlang/internal/tokenizer"
-	"loxlang/pkg/interfaces"
 	"loxlang/pkg/loxerror"
 )
 
@@ -134,32 +133,28 @@ func (i *Interpreter) VisitCallExpr(expr *ast.Call) any {
 		arguments = append(arguments, i.evaluate(arg))
 	}
 
-	function, ok := callee.(interfaces.LoxCallable)
+	if function, ok := callee.(LoxCallable); ok {
+		arity := function.Arity()
+		argsLength := len(arguments)
 
-	if !ok {
-		i.report(loxerror.NewRuntimeError(expr.Paren.Line(), expr.Paren.Lexeme(), loxerror.ErrCanOnlyCallFunctionsOrClasses))
-	}
-	arity := function.Arity()
-	argsLength := len(arguments)
+		if arity != -1 && arity != argsLength {
+			i.report(loxerror.NewRuntimeError(expr.Paren.Line(), expr.Paren.Lexeme(), loxerror.ErrArgsCountConflict(arity, argsLength)))
+		}
 
-	if arity != -1 && arity != argsLength {
-		i.report(loxerror.NewRuntimeError(expr.Paren.Line(), expr.Paren.Lexeme(), loxerror.ErrArgsCountConflict(arity, argsLength)))
+		return function.Call(i, arguments)
 	}
-	return function.Call(arguments)
+
+	i.report(loxerror.NewRuntimeError(expr.Paren.Line(), expr.Paren.Lexeme(), loxerror.ErrCanOnlyCallFunctionsOrClasses))
+	return nil
 }
 
 func (i *Interpreter) VisitLambdaExpr(expr *ast.Lambda) any {
-	params := expr.Params
-	body := expr.Body
-
 	closure := i.env
 
-	arity := len(params)
-
-	return NewCallable(
-		"",
-		i.CallableCallback(closure, params, body),
-		arity,
+	return NewLoxFunction(
+		ast.NewFunction(tokenizer.NewToken(tokenizer.IDENTIFIER, "", nil, -1), expr.Params, expr.Body),
+		closure,
+		false,
 	)
 }
 
@@ -167,7 +162,7 @@ func (i *Interpreter) VisitGetExpr(expr *ast.Get) any {
 	object := i.evaluate(expr.Object)
 
 	if instance, ok := object.(*ClassInstance); ok {
-		v, exists := instance.Get(expr.Name)
+		v, exists := instance.Get(i.env, expr.Name)
 		if !exists {
 			i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrUndefinedProperty(expr.Name.Lexeme())))
 		}
@@ -190,4 +185,13 @@ func (i *Interpreter) VisitSetExpr(expr *ast.Set) any {
 
 	i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrOnlyInstancesHaveProps))
 	return nil
+}
+
+func (i *Interpreter) VisitThisExpr(expr *ast.This) any {
+	v, ok := i.lookUpVariable(expr.Keyword, expr)
+	if !ok {
+		// ! this never happens, because we catch it in resolution steps
+		return nil
+	}
+	return v
 }

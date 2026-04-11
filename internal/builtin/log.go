@@ -2,21 +2,21 @@ package builtin
 
 import (
 	"fmt"
+	"loxlang/internal/interpreter"
 	"loxlang/pkg/constants"
-	"loxlang/pkg/interfaces"
 )
 
 type LogFn struct {
 	Name string
 }
 
-func NewLogFn() interfaces.LoxCallable {
+func NewLogFn() interpreter.LoxCallable {
 	return &LogFn{
 		Name: constants.LOG_FN,
 	}
 }
 
-func (l *LogFn) Call(arguments []any) any {
+func (l *LogFn) Call(_ *interpreter.Interpreter, arguments []any) any {
 	fmt.Println(arguments...)
 	return nil
 }

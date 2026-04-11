@@ -18,3 +18,7 @@ var keywords = map[string]TokenType{
 	"var":    VAR,
 	"while":  WHILE,
 }
+
+var KeywordLexemes = map[TokenType]string{
+	THIS: "this",
+}

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"loxlang/internal/ast"
 	"loxlang/internal/environment"
-	"loxlang/pkg/interfaces"
 )
 
 func (i *Interpreter) VisitExpressionStmt(stmt *ast.Expression) any {
@@ -77,23 +76,17 @@ func (i *Interpreter) VisitForStmt(stmt *ast.For) any {
 }
 
 func (i *Interpreter) VisitFunctionStmt(stmt *ast.Function) any {
-	name := stmt.Name
-	params := stmt.Params
-	body := stmt.Body
-
 	closure := i.env
-
-	arity := len(params)
-
-	cb := NewCallable(
-		name.Lexeme(),
-		i.CallableCallback(closure, params, body),
-		arity,
+	
+	fn := NewLoxFunction(
+		stmt,
+		closure,
+		false,
 	)
 
-	i.RegisterCallable(cb)
+	i.env.Define(stmt.Name.Lexeme(), fn)
 
-	return cb
+	return fn
 }
 
 func (i *Interpreter) VisitReturnStmt(stmt *ast.Return) any {
@@ -107,16 +100,15 @@ func (i *Interpreter) VisitReturnStmt(stmt *ast.Return) any {
 
 func (i *Interpreter) VisitClassStmt(stmt *ast.Class) any {
 	i.env.Define(stmt.Name.Lexeme(), nil)
-	
+
 	closure := i.env
-	methods:= make(map[string]interfaces.LoxCallable, 0)
+	methods := make(map[string]*LoxFunction, 0)
 	for _, m := range stmt.Methods {
 		name := m.Name.Lexeme()
-		methods[name] = NewCallable(name, i.CallableCallback(closure, m.Params, m.Body), len(m.Params))
+		methods[name] = NewLoxFunction(&m, closure, name == "init")
 	}
-
 	class := NewClass(stmt.Name.Lexeme(), methods)
 	i.env.Assign(stmt.Name, class)
 
-	return nil 
+	return nil
 }

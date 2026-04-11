@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	"fmt"
+	"loxlang/internal/environment"
 	"loxlang/internal/tokenizer"
 )
 
@@ -12,20 +13,24 @@ type ClassInstance struct {
 
 func NewClassInstance(class *Class) *ClassInstance {
 	return &ClassInstance{
-		class: class,
+		class:  class,
+		fields: make(map[string]any),
 	}
 }
 
-func (ci *ClassInstance) Get(property tokenizer.Token) (any, bool) {
+func (ci *ClassInstance) Get(closure *environment.Environment, property tokenizer.Token) (any, bool) {
 	key := property.Lexeme()
-	v, ok := ci.fields[key]
 
-	if !ok {
-		m, ok := ci.class.FindMethod(key)
-		return m, ok 
+	if v, ok := ci.fields[key]; ok {
+		return v, true
 	}
 
-	return v, true
+	if m, ok := ci.class.FindMethod(key); ok {
+		return m.Bind(ci), true
+	}
+	
+	return nil, false
+
 }
 
 func (ci *ClassInstance) Set(property tokenizer.Token, value any) {

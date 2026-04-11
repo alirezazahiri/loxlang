@@ -3,8 +3,8 @@ package builtin
 import (
 	"bufio"
 	"fmt"
+	"loxlang/internal/interpreter"
 	"loxlang/pkg/constants"
-	"loxlang/pkg/interfaces"
 	"os"
 	"strconv"
 )
@@ -13,13 +13,13 @@ type InputFn struct {
 	Name string
 }
 
-func NewInputFn() interfaces.LoxCallable {
+func NewInputFn() interpreter.LoxCallable {
 	return &InputFn{
 		Name: constants.INPUT_FN,
 	}
 }
 
-func (i *InputFn) Call(arguments []any) any {
+func (i *InputFn) Call(_ *interpreter.Interpreter, arguments []any) any {
 	scanner := bufio.NewScanner(os.Stdin)
 	if len(arguments) > 0 {
 		fmt.Print(arguments...)

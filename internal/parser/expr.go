@@ -172,10 +172,14 @@ func (p *Parser) finishCall(expr ast.Expr) ast.Expr {
 	return ast.NewCall(expr, *paren, arguments)
 }
 
-// primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+// primary -> NUMBER | STRING | "true" | "false" | "nil" | "this" | "(" expression ")" ;
 func (p *Parser) primary() ast.Expr {
 	if p.match(tokenizer.NUMBER, tokenizer.STRING, tokenizer.TRUE, tokenizer.FALSE, tokenizer.NIL) {
 		return ast.NewLiteral(p.previous().Literal())
+	}
+
+	if p.match(tokenizer.THIS) {
+		return ast.NewThis(*p.previous())
 	}
 
 	if p.match(tokenizer.IDENTIFIER) {

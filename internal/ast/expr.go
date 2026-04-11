@@ -101,6 +101,22 @@ func (e *Literal) Accept(visitor ExprVisitor) any {
 	return visitor.VisitLiteralExpr(e)
 }
 
+type This struct {
+	Keyword tokenizer.Token
+}
+
+func NewThis(keyword tokenizer.Token) *This {
+	return &This{
+		Keyword: keyword,
+	}
+}
+
+func (*This) expr() {}
+
+func (e *This) Accept(visitor ExprVisitor) any {
+	return visitor.VisitThisExpr(e)
+}
+
 type Unary struct {
 	Operator tokenizer.Token
 	Right    Expr
@@ -217,6 +233,7 @@ type ExprVisitor interface {
 	VisitLogicalExpr(expr *Logical) any
 	VisitGroupingExpr(expr *Grouping) any
 	VisitLiteralExpr(expr *Literal) any
+	VisitThisExpr(expr *This) any
 	VisitUnaryExpr(expr *Unary) any
 	VisitLambdaExpr(expr *Lambda) any
 	VisitCallExpr(expr *Call) any
