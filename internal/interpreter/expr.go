@@ -160,35 +160,57 @@ func (i *Interpreter) VisitLambdaExpr(expr *ast.Lambda) any {
 
 func (i *Interpreter) VisitGetExpr(expr *ast.Get) any {
 	object := i.evaluate(expr.Object)
+    instance, ok := object.(*ClassInstance)
+    if !ok {
+        i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrOnlyInstancesHaveProps))
+        return nil
+    }
 
-	if instance, ok := object.(*ClassInstance); ok {
-		if v, exists := instance.Get(i, expr.Name); exists {
-			return v
-		}
-		i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrUndefinedProperty(expr.Name.Lexeme())))
-	}
+    name := expr.Name.Lexeme()
 
-	i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrOnlyInstancesHaveProps))
+    // 1. getters
+    if getter, ok := instance.class.FindGetter(name); ok {
+        return getter.Bind(instance).Call(i, nil)
+    }
 
-	return nil
+    // 2. fields
+    if value, ok := instance.fields[name]; ok {
+        return value
+    }
+
+    // 3. methods
+    if method, ok := instance.class.FindMethod(name); ok {
+        return method.Bind(instance)
+    }
+
+    i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrUndefinedProperty(name)))
+    return nil
 }
 
 func (i *Interpreter) VisitSetExpr(expr *ast.Set) any {
-	object := i.evaluate(expr.Object)
+	// Special case: super.foo = value
+    if superExpr, ok := expr.Object.(*ast.Super); ok {
+        return i.handleSuperSet(superExpr, expr.Name, expr.Value)
+    }
 
-	if instance, ok := object.(*ClassInstance); ok {
-		value := i.evaluate(expr.Value)
-		if setter, ok := instance.class.FindSetter(expr.Name.Lexeme()); ok {
-			value := setter.Bind(instance).Call(i, []any{value})
-			// instance.Set(setter.declaration.Name, value)
-			return value
-		}
-		instance.Set(expr.Name, value)
-		return value
-	}
+    object := i.evaluate(expr.Object)
+    instance, ok := object.(*ClassInstance)
+    if !ok {
+        i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrOnlyInstancesHaveProps))
+        return nil
+    }
 
-	i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrOnlyInstancesHaveProps))
-	return nil
+    value := i.evaluate(expr.Value)
+    name := expr.Name.Lexeme()
+
+    // 1. setter chain
+    if setter, ok := instance.class.FindSetter(name); ok {
+        return setter.Bind(instance).Call(i, []any{value})
+    }
+
+    // 2. fallback: field set
+    instance.fields[name] = value
+    return value
 }
 
 func (i *Interpreter) VisitThisExpr(expr *ast.This) any {
@@ -198,4 +220,36 @@ func (i *Interpreter) VisitThisExpr(expr *ast.This) any {
 		return nil
 	}
 	return v
+}
+
+func (i *Interpreter) VisitSuperExpr(expr *ast.Super) any {
+	var superClass *Class
+	var object *ClassInstance
+
+	if distance, ok := i.locals[expr]; ok {
+		if v, ok := i.env.GetAt(distance, tokenizer.KeywordLexemes[tokenizer.SUPER]); ok {
+			superClass = v.(*Class)
+		}
+		if v, ok := i.env.GetAt(distance-1, tokenizer.KeywordLexemes[tokenizer.THIS]); ok {
+			object = v.(*ClassInstance)
+		}
+	}
+
+	// fmt.Printf("\n----------------------------------\nsearching in super class for %s:\nMethods: %v,\nGetters: %v,\nSetters: %v\n----------------------------------\n", expr.Method.Lexeme(), superClass.Methods, superClass.Getters, superClass.Setters)
+	if method, ok := superClass.FindMethod(expr.Method.Lexeme()); ok {
+		// fmt.Println("found method", method)
+		return method.Bind(object)
+	}
+	// if setter, ok := superClass.FindSetter(expr.Method.Lexeme()); ok {
+	// 	fmt.Println("found setter", setter)
+	// 	return setter.Bind(object)
+	// }
+	if getter, ok := superClass.FindGetter(expr.Method.Lexeme()); ok {
+		// fmt.Println("found getter", getter)
+		return getter.Bind(object).Call(i, nil)
+	}
+
+	i.report(loxerror.NewRuntimeError(expr.Method.Line(), expr.Method.Lexeme(), loxerror.ErrUndefinedProperty(expr.Method.Lexeme())))
+
+	return nil
 }

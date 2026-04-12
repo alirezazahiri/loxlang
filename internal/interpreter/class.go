@@ -2,18 +2,21 @@ package interpreter
 
 import (
 	"fmt"
+	"loxlang/pkg/constants"
 )
 
 type Class struct {
 	Name    string
+	Super   *Class
 	Methods map[string]*LoxFunction
 	Getters map[string]*LoxFunction
 	Setters map[string]*LoxFunction
 }
 
-func NewClass(name string, methods map[string]*LoxFunction, getters map[string]*LoxFunction, setters map[string]*LoxFunction) *Class {
+func NewClass(name string, super *Class, methods map[string]*LoxFunction, getters map[string]*LoxFunction, setters map[string]*LoxFunction) *Class {
 	return &Class{
 		Name:    name,
+		Super:   super,
 		Methods: methods,
 		Getters: getters,
 		Setters: setters,
@@ -22,16 +25,27 @@ func NewClass(name string, methods map[string]*LoxFunction, getters map[string]*
 
 func (c *Class) FindMethod(name string) (*LoxFunction, bool) {
 	m, ok := c.Methods[name]
+	if !ok && c.Super != nil {
+		return c.Super.FindMethod(name)
+	}
 	return m, ok
 }
 
 func (c *Class) FindGetter(name string) (*LoxFunction, bool) {
-	m, ok := c.Getters[name]
+	key := constants.GETTER_PREFIX + name
+	m, ok := c.Getters[key]
+	if !ok && c.Super != nil {
+		return c.Super.FindGetter(name)
+	}
 	return m, ok
 }
 
 func (c *Class) FindSetter(name string) (*LoxFunction, bool) {
-	m, ok := c.Setters[name]
+	key := constants.SETTER_PREFIX+name
+	m, ok := c.Setters[key]
+	if !ok && c.Super != nil {
+		return c.Super.FindSetter(name)
+	}
 	return m, ok
 }
 
@@ -39,7 +53,7 @@ func (c *Class) Call(i *Interpreter, args []any) any {
 	instance := NewClassInstance(c)
 
 	if initializer, ok := c.FindMethod("init"); ok {
-		initializer.Bind(instance).Call(i, args)
+		return initializer.Bind(instance).Call(i, args)
 	}
 
 	return instance

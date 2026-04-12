@@ -34,8 +34,10 @@ const (
 	ErrCanOnlyCallFunctionsOrClasses                LoxErrorMessage = "can only call functions or classes"
 	ErrExpectedIdenAfterFun                         LoxErrorMessage = "expected identifier after  \"fun\" keyword"
 	ErrExpectedIdenAfterSet                         LoxErrorMessage = "expected identifier after  \"set\" keyword"
-	ErrExpectedSetKeywordBeforeSet					LoxErrorMessage = "expected \"set\" keyword"
+	ErrExpectedSetKeywordBeforeSet                  LoxErrorMessage = "expected \"set\" keyword"
 	ErrExpectedIdenForClassMethods                  LoxErrorMessage = "class methods require an identifier"
+	ErrExpectedIdenForClass                         LoxErrorMessage = "classes require an identifier"
+	ErrExpectedIdenForSuperClass                    LoxErrorMessage = "expected superclass identifier after \"<\""
 	ErrExpectedOpeningBraceBeforeClassBody          LoxErrorMessage = "expected \"{\" before class body"
 	ErrExpectedClosingBraceAfterClassBody           LoxErrorMessage = "expected \"}\" after class body"
 	ErrExpectedClosingParenAfterParams              LoxErrorMessage = "expected \")\" after parameters"
@@ -44,10 +46,15 @@ const (
 	ErrExprectedClosingBraceBeforeAnonymousFuncBody LoxErrorMessage = "expected \"}\" before anonymous function body"
 	ErrUnexpectedReturnFromNonFunction              LoxErrorMessage = "cannot return outside of a function"
 	ErrUnexpectedInitReturn                         LoxErrorMessage = "cannot return a value from an initializer"
+	ErrExpectedDotAfterSuper                        LoxErrorMessage = "expected \".\" after \"super\" keyword"
 	ErrExpectedPropertyNameAfterDot                 LoxErrorMessage = "expected property after \".\""
 	ErrOnlyInstancesHaveProps                       LoxErrorMessage = "only instances of classes have properties"
 	ErrUnexpectedThisOutsideOfClass                 LoxErrorMessage = "cannot use 'this' outside of a class"
+	ErrUnexpectedSuperOutsideOfClass                LoxErrorMessage = "cannot use 'super' outside of a class"
+	ErrUnexpectedSuperOutsideOfSubClass             LoxErrorMessage = "cannot use 'super' in a class with no super class"
 	ErrSettersExpectExactlyOneParam                 LoxErrorMessage = "setters expect exactly one parameter"
+	ErrClassesCannotInheritThemselves               LoxErrorMessage = "classes cannot inherit from themselves"
+	ErrSuperClassMustBeClass                        LoxErrorMessage = "superclasses must be a class"
 )
 
 func ErrUnexpectedToken(received, expected string) LoxErrorMessage {

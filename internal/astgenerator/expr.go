@@ -7,6 +7,7 @@ func NewExpr() *AstGenerator {
 		"Logical	: Expr left, tokenizer.Token operator, Expr right",
 		"Grouping	: Expr expression",
 		"Literal	: any value",
+		"Super		: tokenizer.Token keyword, tokenizer.Token method",
 		"This		: tokenizer.Token keyword",
 		"Unary		: tokenizer.Token operator, Expr right",
 		"Lambda		: []tokenizer.Token params, []Stmt body",

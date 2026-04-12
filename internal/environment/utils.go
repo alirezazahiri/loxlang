@@ -1,6 +1,8 @@
 package environment
 
-import "loxlang/internal/tokenizer"
+import (
+	"loxlang/internal/tokenizer"
+)
 
 func (e *Environment) Define(name string, value any) {
 	e.values[name] = value
@@ -44,14 +46,15 @@ func (e *Environment) Get(name string) (any, bool) {
 }
 
 func (e *Environment) GetAt(distance int, name string) (any, bool) {
-	v, ok := e.Ancestor(distance).values[name]
+	ancestor := e.Ancestor(distance)
+	v, ok := ancestor.values[name]
 	return v, ok
 }
 
 func (e *Environment) Ancestor(distance int) *Environment {
-	env := *e
+	env := e
 	for range distance {
-		env = *e.enclosing
+		env = env.enclosing
 	}
-	return &env
+	return env
 }

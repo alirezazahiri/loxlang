@@ -28,13 +28,11 @@ func NewLoxFunction(
 func (f *LoxFunction) Bind(instance *ClassInstance) LoxCallable {
 	env := environment.New(f.closure)
 	env.Define(tokenizer.KeywordLexemes[tokenizer.THIS], instance)
-
 	return NewLoxFunction(f.declaration, env, f.isInitializer)
 }
 
 func (f *LoxFunction) Call(i *Interpreter, args []any) (res any) {
 	env := environment.New(f.closure)
-
 	for idx, param := range f.declaration.Params {
 		env.Define(param.Lexeme(), args[idx])
 	}

@@ -11,9 +11,12 @@ func (s Scopes) Peek() Scope {
 	}
 	return s[len(s)-1]
 }
-func (s Scopes) Pop() Scope {
-	last := s.Peek()
-	s = s[:len(s)-1]
+func (s *Scopes) Pop() Scope {
+	if len(*s) == 0 {
+		return nil
+	}
+	last := (*s)[len(*s)-1]
+	*s = (*s)[:len(*s)-1]
 	return last
 }
 func (s Scopes) Size() int {

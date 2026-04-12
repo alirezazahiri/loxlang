@@ -101,6 +101,24 @@ func (e *Literal) Accept(visitor ExprVisitor) any {
 	return visitor.VisitLiteralExpr(e)
 }
 
+type Super struct {
+	Keyword tokenizer.Token
+	Method  tokenizer.Token
+}
+
+func NewSuper(keyword tokenizer.Token, method tokenizer.Token) *Super {
+	return &Super{
+		Keyword: keyword,
+		Method:  method,
+	}
+}
+
+func (*Super) expr() {}
+
+func (e *Super) Accept(visitor ExprVisitor) any {
+	return visitor.VisitSuperExpr(e)
+}
+
 type This struct {
 	Keyword tokenizer.Token
 }
@@ -233,6 +251,7 @@ type ExprVisitor interface {
 	VisitLogicalExpr(expr *Logical) any
 	VisitGroupingExpr(expr *Grouping) any
 	VisitLiteralExpr(expr *Literal) any
+	VisitSuperExpr(expr *Super) any
 	VisitThisExpr(expr *This) any
 	VisitUnaryExpr(expr *Unary) any
 	VisitLambdaExpr(expr *Lambda) any

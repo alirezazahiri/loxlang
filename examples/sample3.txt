@@ -1,0 +1,29 @@
+var counter = fun (a) {
+    var start = a;
+    return fun() {
+        var prev = start;
+        start = prev+1;
+        return prev;
+    };
+};
+
+var counterWithMap = fun(a, map) {
+    var start = a;
+    return fun() {
+        var prev = start;
+        start = map(start);
+        return prev;
+    };
+};
+
+var c1 = counter(1);
+log(c1()); // 1
+log(c1()); // 2
+log(c1()); // 3
+
+print "---------";
+
+var c2 = counterWithMap(10, fun(n) {return n * 10;});
+log(c2()); // 10
+log(c2()); // 100
+log(c2()); // 1000

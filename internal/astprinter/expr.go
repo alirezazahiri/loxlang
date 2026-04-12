@@ -76,13 +76,17 @@ func (p *AstPrinter) VisitLambdaExpr(expr *ast.Lambda) any {
 }
 
 func (p *AstPrinter) VisitGetExpr(expr *ast.Get) any {
-	return p.parenthesize("get", expr)
+	return p.parenthesize("get", expr.Object)
 }
 
 func (p *AstPrinter) VisitSetExpr(expr *ast.Set) any {
-	return p.parenthesize("set", expr)
+	return p.parenthesize("set", expr.Object)
 }
 
 func (p *AstPrinter) VisitThisExpr(expr *ast.This) any {
-	return p.parenthesize("this", expr)
+	return p.parenthesize("this")
+}
+
+func (p *AstPrinter) VisitSuperExpr(expr *ast.Super) any {
+	return p.parenthesize("super")
 }

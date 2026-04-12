@@ -36,9 +36,15 @@ func (p *Parser) declaration() ast.Stmt {
 	return p.statement()
 }
 
-// classDecl -> "class" IDENTIFIER "{" ( function | setter )* "}" ;
+// classDecl -> "class" IDENTIFIER ( "<" IDENTIFIER )? "{" ( function | setter )* "}" ;
 func (p *Parser) classDecl() ast.Stmt {
-	className := p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectedIdenForClassMethods)
+	className := p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectedIdenForClass)
+
+	var superClass *ast.Variable
+	
+	if p.match(tokenizer.LESS) {
+		superClass = ast.NewVariable(*p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectedIdenForSuperClass))
+	}
 
 	p.consume(tokenizer.LEFT_BRACE, loxerror.ErrExpectedOpeningBraceBeforeClassBody)
 
@@ -53,7 +59,7 @@ func (p *Parser) classDecl() ast.Stmt {
 	}
 	p.consume(tokenizer.RIGHT_BRACE, loxerror.ErrExpectedClosingBraceAfterClassBody)
 
-	return ast.NewClass(*className, methods)
+	return ast.NewClass(*className, superClass, methods)
 }
 
 // funDecl -> "fun" function ;
@@ -68,6 +74,7 @@ func (p *Parser) function(kind constants.CallableKind) *ast.Function {
 		params, body := p.extractParamsAndBody(kind)
 		return ast.NewFunction(*name, params, body, false, false)
 	} else if p.match(tokenizer.LEFT_BRACE) {
+		name.SetLexeme(constants.GETTER_PREFIX + name.Lexeme())
 		return ast.NewFunction(*name, nil, p.block(), true, false)
 	}
 	if !p.match(tokenizer.LEFT_PAREN, tokenizer.LEFT_BRACE) {
@@ -85,7 +92,7 @@ func (p *Parser) setter() *ast.Function {
 	if len(params) != 1 {
 		p.report(name, loxerror.ErrSettersExpectExactlyOneParam)
 	}
-	name.SetLexeme("@set_" + name.Lexeme())
+	name.SetLexeme(constants.SETTER_PREFIX + name.Lexeme())
 	return ast.NewFunction(*name, params, body, false, true)
 }
 

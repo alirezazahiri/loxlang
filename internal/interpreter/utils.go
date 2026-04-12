@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	"fmt"
+	"loxlang/internal/ast"
 	"loxlang/internal/tokenizer"
 	"loxlang/pkg/loxerror"
 	"strings"
@@ -125,4 +126,27 @@ func (i *Interpreter) stringify(value any) string {
 
 func (i *Interpreter) report(err *loxerror.LoxError) {
 	panic(err)
+}
+
+func (i *Interpreter) handleSuperSet(superExpr *ast.Super, nameTok tokenizer.Token, valueExpr ast.Expr) any {
+	distance := i.locals[superExpr]
+	superclass, ok := i.env.GetAt(distance, "super")
+	if !ok {
+		return nil
+	}
+	object, ok := i.env.GetAt(distance-1, "this")
+	if !ok {
+		return nil
+	}
+	value := i.evaluate(valueExpr)
+	name := nameTok.Lexeme()
+
+	// only search setters in *superclass chain*
+	if setter, ok := superclass.(*Class).FindSetter(name); ok {
+		return setter.Bind(object.(*ClassInstance)).Call(i, []any{value})
+	}
+
+	// assigning to a field via super is invalid
+	i.report(loxerror.NewRuntimeError(nameTok.Line(), nameTok.Lexeme(), "cannot assign to superclass field"))
+	return nil
 }

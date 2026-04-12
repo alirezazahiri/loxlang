@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"loxlang/internal/ast"
 	"loxlang/internal/environment"
+	"loxlang/internal/tokenizer"
+	"loxlang/pkg/loxerror"
 )
 
 func (i *Interpreter) VisitExpressionStmt(stmt *ast.Expression) any {
@@ -99,26 +101,48 @@ func (i *Interpreter) VisitReturnStmt(stmt *ast.Return) any {
 }
 
 func (i *Interpreter) VisitClassStmt(stmt *ast.Class) any {
+	var superClass any = nil
+	if stmt.SuperClass != nil {
+		superClass = i.evaluate(stmt.SuperClass)
+		if _, ok := superClass.(*Class); !ok {
+			i.report(loxerror.NewRuntimeError(stmt.Name.Line(), stmt.SuperClass.Name.Lexeme(), loxerror.ErrSuperClassMustBeClass))
+		}
+	}
+
 	i.env.Define(stmt.Name.Lexeme(), nil)
 
-	closure := i.env
-	
+	if superClass != nil {
+		i.env = environment.New(i.env)
+		i.env.Define(tokenizer.KeywordLexemes[tokenizer.SUPER], superClass)
+	}
+
 	methods := make(map[string]*LoxFunction, 0)
 	getters := make(map[string]*LoxFunction, 0)
 	setters := make(map[string]*LoxFunction, 0)
 
 	for _, m := range stmt.Methods {
 		name := m.Name.Lexeme()
+		
 		if m.IsGetter {
-			getters[name] = NewLoxFunction(&m, closure, false)
+			getters[name] = NewLoxFunction(&m, i.env, false)
 		} else if m.IsSetter {
-			setters[name] = NewLoxFunction(&m, closure, false)
+			setters[name] = NewLoxFunction(&m, i.env, false)
 		} else {
-			methods[name] = NewLoxFunction(&m, closure, name == "init")
+			methods[name] = NewLoxFunction(&m, i.env, name == "init")
 		}
 	}
 
-	class := NewClass(stmt.Name.Lexeme(), methods, getters, setters)
+	var class *Class
+
+	if superClass != nil {
+		class = NewClass(stmt.Name.Lexeme(), superClass.(*Class), methods, getters, setters)
+	} else {
+		class = NewClass(stmt.Name.Lexeme(), nil, methods, getters, setters)
+	}
+
+	if superClass != nil {
+		i.env = i.env.Ancestor(1)
+	}
 	i.env.Assign(stmt.Name, class)
 
 	return nil

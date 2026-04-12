@@ -57,12 +57,22 @@ func (r *Resolver) VisitClassStmt(stmt *ast.Class) any {
 	r.declare(stmt.Name)
 	r.define(stmt.Name)
 
-	r.beginScope()
+	if stmt.SuperClass != nil && stmt.Name.Lexeme() == stmt.SuperClass.Name.Lexeme() {
+		r.report(loxerror.NewRuntimeError(stmt.Name.Line(), stmt.SuperClass.Name.Lexeme(), loxerror.ErrClassesCannotInheritThemselves))
+	}
 
-	r.scopes.Peek().Put(tokenizer.KeywordLexemes[tokenizer.THIS], true)
+	if stmt.SuperClass != nil {
+		r.currentClass = constants.ClassKindSubClass
+		r.Resolve(stmt.SuperClass)
+		r.beginScope()
+		r.scopes.Peek().Put(tokenizer.KeywordLexemes[tokenizer.SUPER], true)
+	}
+
 	r.resolveClass(*stmt)
 
-	r.endScope()
+	if stmt.SuperClass != nil {
+		r.endScope()
+	}
 
 	r.currentClass = enclosingClass
 

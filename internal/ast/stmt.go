@@ -88,14 +88,16 @@ func (e *Block) Accept(visitor StmtVisitor) any {
 }
 
 type Class struct {
-	Name    tokenizer.Token
-	Methods []Function
+	Name       tokenizer.Token
+	SuperClass *Variable
+	Methods    []Function
 }
 
-func NewClass(name tokenizer.Token, methods []Function) *Class {
+func NewClass(name tokenizer.Token, superClass *Variable, methods []Function) *Class {
 	return &Class{
-		Name:    name,
-		Methods: methods,
+		Name:       name,
+		SuperClass: superClass,
+		Methods:    methods,
 	}
 }
 

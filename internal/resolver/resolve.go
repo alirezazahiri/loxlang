@@ -10,7 +10,6 @@ import (
 
 // Resolve panics if there is a resolution error
 func (r *Resolver) Resolve(resolvable any) {
-	
 	switch resolvable.(type) {
 	case []ast.Stmt:
 		for _, statement := range resolvable.([]ast.Stmt) {
@@ -50,13 +49,22 @@ func (r *Resolver) resolveFunction(stmt ast.Function, kind constants.CallableKin
 }
 
 func (r *Resolver) resolveClass(stmt ast.Class) {
+	r.beginScope()
+	r.scopes.Peek().Put(tokenizer.KeywordLexemes[tokenizer.THIS], true)
+	
 	for _, fn := range stmt.Methods {
 		kind := constants.CallableKindMethod
 		if (fn.Name.Lexeme() == "init") {
 			kind = constants.CallableKindInitializer
+		} else if fn.IsGetter {
+			kind = constants.CallableKindGetter
+		} else if fn.IsSetter {
+			kind = constants.CallableKindSetter
 		}
 		r.resolveFunction(fn, kind)
 	}
+	
+	r.endScope()
 }
 
 func (r *Resolver) beginScope() {
@@ -64,7 +72,7 @@ func (r *Resolver) beginScope() {
 }
 
 func (r *Resolver) endScope() {
-	r.scopes.Pop()
+	(&r.scopes).Pop()
 }
 
 func (r *Resolver) declare(name tokenizer.Token) {

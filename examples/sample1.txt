@@ -1,0 +1,88 @@
+// --- Base class with fields, getter, setter, method ---
+class Animal {
+    init(name) {
+        this.name = name;
+        this._mood = "neutral";
+    }
+
+    speak() {
+        print "Animal(" + this.name + ") makes a sound.";
+    }
+
+    mood {
+        print "Getting mood from Animal";
+        return this._mood;
+    }
+
+    set mood (value) {
+        print "Setting mood in Animal to " + value;
+        this._mood = value;
+    }
+}
+
+// --- Middle class overriding everything ---
+class Dog < Animal {
+    init(name, breed) {
+        super.init(name);
+        this.breed = breed;
+    }
+
+    speak() {
+        print this.name + " barks!";
+    }
+
+    mood {
+        print "Getting mood from Dog via super";
+        return super.mood;  // getter from Animal
+    }
+
+    set mood (value) {
+        print "Dog setter – forwarding to super";
+        super.mood = value;  // setter from Animal
+    }
+
+    // store a method in a field
+    storeSpeak() {
+        this.s = this.speak;
+    }
+}
+
+// --- Deep inheritance + advanced super usage ---
+class GuardDog < Dog {
+    speak() {
+        print "GuardDog growls...";
+        super.speak();  // calls Dog.speak
+    }
+
+    mood {
+        print "GuardDog mood getter, combining:";
+        var m = super.mood;
+        return "alert + " + m;
+    }
+
+    testAll() {
+        print "--- Testing getters/setters ---";
+        this.mood = "happy";
+        print "Final mood: " + this.mood;
+
+        print "--- Testing stored method binding ---";
+        this.storeSpeak();
+        this.s(); // calling a method stored in a field
+
+        print "--- Calling overridden speak with super ---";
+        this.speak();
+    }
+}
+
+// --- Actual test ---
+var g = GuardDog("Rex", "German Shepherd");
+
+print "--- Calling speak(): ---";
+g.speak();
+
+print "--- Testing mood chain ---";
+g.mood = "excited";
+print g.mood;
+
+print "--- Deep test suite ---";
+g.testAll();

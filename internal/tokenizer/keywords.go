@@ -22,4 +22,5 @@ var keywords = map[string]TokenType{
 
 var KeywordLexemes = map[TokenType]string{
 	THIS: "this",
+	SUPER: "super",
 }

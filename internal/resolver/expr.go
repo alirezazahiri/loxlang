@@ -83,3 +83,14 @@ func (r *Resolver) VisitThisExpr(expr *ast.This) any {
 	r.resolveLocal(expr, expr.Keyword)
 	return nil
 }
+
+func (r *Resolver) VisitSuperExpr(expr *ast.Super) any {
+	if r.currentClass == constants.ClassKindNone {
+		r.report(loxerror.NewRuntimeError(expr.Keyword.Line(), expr.Keyword.Lexeme(), loxerror.ErrUnexpectedSuperOutsideOfClass))
+	}
+	if r.currentClass != constants.ClassKindSubClass {
+		r.report(loxerror.NewRuntimeError(expr.Keyword.Line(), expr.Keyword.Lexeme(), loxerror.ErrUnexpectedSuperOutsideOfSubClass))
+	}
+	r.resolveLocal(expr, expr.Keyword)
+	return nil
+}

@@ -33,6 +33,7 @@ func (p *Parser) expression() ast.Expr {
 
 // lambda -> "fun" "(" parameters? ")" block ;
 func (p *Parser) lambda() ast.Expr {
+	p.consume(tokenizer.LEFT_PAREN, loxerror.ErrExprectedOpeningParenAfterAnonymousFunc)
 	params, body := p.extractParamsAndBody(constants.CallableKindAnonymousFunction)
 	return ast.NewLambda(params, body)
 }
@@ -49,6 +50,8 @@ func (p *Parser) assignment() ast.Expr {
 			return ast.NewAssign(name, value)
 		} else if get, ok := expr.(*ast.Get); ok {
 			return ast.NewSet(get.Object, get.Name, value)
+		} else if super, ok := expr.(*ast.Super); ok {
+			return ast.NewSet(expr, super.Method, value)
 		}
 
 		p.report(equals, loxerror.ErrUnexpectedAssignmentExpression)
@@ -172,10 +175,17 @@ func (p *Parser) finishCall(expr ast.Expr) ast.Expr {
 	return ast.NewCall(expr, *paren, arguments)
 }
 
-// primary -> NUMBER | STRING | "true" | "false" | "nil" | "this" | "(" expression ")" ;
+// primary -> NUMBER | STRING | "true" | "false" | "nil" | "this" | "(" expression ")" | "super" "." IDENTIFIER ;
 func (p *Parser) primary() ast.Expr {
 	if p.match(tokenizer.NUMBER, tokenizer.STRING, tokenizer.TRUE, tokenizer.FALSE, tokenizer.NIL) {
 		return ast.NewLiteral(p.previous().Literal())
+	}
+
+	if p.match(tokenizer.SUPER) {
+		keyword := *p.previous()
+		p.consume(tokenizer.DOT, loxerror.ErrExpectedDotAfterSuper)
+		prop := p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectedPropertyNameAfterDot)
+		return ast.NewSuper(keyword, *prop)
 	}
 
 	if p.match(tokenizer.THIS) {

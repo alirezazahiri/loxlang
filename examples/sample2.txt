@@ -1,0 +1,21 @@
+class A {
+  init() { this.val = 1; }
+
+  x { print "A.get x"; return this.val; }
+  set x(v) { log("A.set x", v); this.val = v; }
+
+  foo() { log("A.foo",this.val); }
+}
+
+class B < A {
+  x { print "B.get x"; return super.x + 10; }
+  set x(v) { log("B.set x", v); super.x = v - 10; }
+
+  foo() { print "B.foo"; super.foo(); }
+}
+
+var b = B();
+print b.x;
+b.x = 50;
+print b.x;
+b.foo();
