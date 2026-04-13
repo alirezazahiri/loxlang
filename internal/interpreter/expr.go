@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	"loxlang/internal/ast"
+	"loxlang/internal/environment"
 	"loxlang/internal/tokenizer"
 	"loxlang/pkg/loxerror"
 )
@@ -96,6 +97,18 @@ func (i *Interpreter) VisitAssignExpr(expr *ast.Assign) any {
 	distance, ok := i.locals[expr]
 	success := false
 
+	if fn, ok := value.(*LoxFunction); ok {
+		if fn.declaration.Name.Lexeme() == "" {
+			name := expr.Name.Lexeme()
+
+			fn.declaration.Name = tokenizer.NewToken(tokenizer.IDENTIFIER, name, nil, expr.Name.Line())
+
+			inner := environment.New(fn.closure)
+			inner.Define(name, fn)
+			fn.closure = inner
+		}
+	}
+	
 	if !ok {
 		success = i.env.AssignAt(distance, expr.Name, value)
 	} else {
@@ -160,57 +173,51 @@ func (i *Interpreter) VisitLambdaExpr(expr *ast.Lambda) any {
 
 func (i *Interpreter) VisitGetExpr(expr *ast.Get) any {
 	object := i.evaluate(expr.Object)
-    instance, ok := object.(*ClassInstance)
-    if !ok {
-        i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrOnlyInstancesHaveProps))
-        return nil
-    }
+	instance, ok := object.(*ClassInstance)
+	if !ok {
+		i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrOnlyInstancesHaveProps))
+		return nil
+	}
 
-    name := expr.Name.Lexeme()
+	name := expr.Name.Lexeme()
 
-    // 1. getters
-    if getter, ok := instance.class.FindGetter(name); ok {
-        return getter.Bind(instance).Call(i, nil)
-    }
+	if getter, ok := instance.class.FindGetter(name); ok {
+		return getter.Bind(instance).Call(i, nil)
+	}
 
-    // 2. fields
-    if value, ok := instance.fields[name]; ok {
-        return value
-    }
+	if value, ok := instance.fields[name]; ok {
+		return value
+	}
 
-    // 3. methods
-    if method, ok := instance.class.FindMethod(name); ok {
-        return method.Bind(instance)
-    }
+	if method, ok := instance.class.FindMethod(name); ok {
+		return method.Bind(instance)
+	}
 
-    i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrUndefinedProperty(name)))
-    return nil
+	i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrUndefinedProperty(name)))
+	return nil
 }
 
 func (i *Interpreter) VisitSetExpr(expr *ast.Set) any {
-	// Special case: super.foo = value
-    if superExpr, ok := expr.Object.(*ast.Super); ok {
-        return i.handleSuperSet(superExpr, expr.Name, expr.Value)
-    }
+	if superExpr, ok := expr.Object.(*ast.Super); ok {
+		return i.handleSuperSet(superExpr, expr.Name, expr.Value)
+	}
 
-    object := i.evaluate(expr.Object)
-    instance, ok := object.(*ClassInstance)
-    if !ok {
-        i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrOnlyInstancesHaveProps))
-        return nil
-    }
+	object := i.evaluate(expr.Object)
+	instance, ok := object.(*ClassInstance)
+	if !ok {
+		i.report(loxerror.NewRuntimeError(expr.Name.Line(), expr.Name.Lexeme(), loxerror.ErrOnlyInstancesHaveProps))
+		return nil
+	}
 
-    value := i.evaluate(expr.Value)
-    name := expr.Name.Lexeme()
+	value := i.evaluate(expr.Value)
+	name := expr.Name.Lexeme()
 
-    // 1. setter chain
-    if setter, ok := instance.class.FindSetter(name); ok {
-        return setter.Bind(instance).Call(i, []any{value})
-    }
+	if setter, ok := instance.class.FindSetter(name); ok {
+		return setter.Bind(instance).Call(i, []any{value})
+	}
 
-    // 2. fallback: field set
-    instance.fields[name] = value
-    return value
+	instance.fields[name] = value
+	return value
 }
 
 func (i *Interpreter) VisitThisExpr(expr *ast.This) any {

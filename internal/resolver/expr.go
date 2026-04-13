@@ -39,6 +39,19 @@ func (r *Resolver) VisitUnaryExpr(expr *ast.Unary) any {
 }
 
 func (r *Resolver) VisitLambdaExpr(expr *ast.Lambda) any {
+	enclosing := r.currentFunction
+	r.currentFunction = constants.CallableKindAnonymousFunction
+	r.beginScope()
+
+	for _, p := range expr.Params {
+		r.declare(p)
+		r.define(p)
+	}
+
+	r.Resolve(expr.Body)
+
+	r.endScope()
+	r.currentFunction = enclosing
 	return nil
 }
 
