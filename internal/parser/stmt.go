@@ -9,15 +9,18 @@ import (
 
 type StmtParser interface {
 	declaration() ast.Stmt
+	classDecl() ast.Stmt
 	funDecl() ast.Stmt
 	function() ast.Stmt
+	setter() ast.Stmt
+	parameters() ast.Stmt
 	varDecl() ast.Stmt
 	statement() ast.Stmt
 	exprStatement() ast.Stmt
 	forStatement() ast.Stmt
 	ifStatement() ast.Stmt
-	printStatement() ast.Stmt
 	returnStatement() ast.Stmt
+	printStatement() ast.Stmt
 	whileStatement() ast.Stmt
 	block() []ast.Stmt
 }
@@ -41,7 +44,7 @@ func (p *Parser) classDecl() ast.Stmt {
 	className := p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectedIdenForClass)
 
 	var superClass *ast.Variable
-	
+
 	if p.match(tokenizer.LESS) {
 		superClass = ast.NewVariable(*p.consume(tokenizer.IDENTIFIER, loxerror.ErrExpectedIdenForSuperClass))
 	}

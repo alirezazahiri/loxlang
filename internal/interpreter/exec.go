@@ -9,7 +9,7 @@ func (i *Interpreter) execute(statement ast.Stmt) {
 	statement.Accept(i)
 }
 
-func (i *Interpreter) executeBlock(statements []ast.Stmt, env *environment.Environment) any {
+func (i *Interpreter) executeBlock(statements []ast.Stmt, env *environment.Environment) {
 	previous := i.env
 	i.env = env
 
@@ -20,5 +20,4 @@ func (i *Interpreter) executeBlock(statements []ast.Stmt, env *environment.Envir
 	for _, statement := range statements {
 		i.execute(statement)
 	}
-	return nil
 }

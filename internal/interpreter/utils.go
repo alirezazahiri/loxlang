@@ -130,11 +130,11 @@ func (i *Interpreter) report(err *loxerror.LoxError) {
 
 func (i *Interpreter) handleSuperSet(superExpr *ast.Super, nameTok tokenizer.Token, valueExpr ast.Expr) any {
 	distance := i.locals[superExpr]
-	superclass, ok := i.env.GetAt(distance, "super")
+	superclass, ok := i.env.GetAt(distance, tokenizer.KeywordLexemes[tokenizer.SUPER])
 	if !ok {
 		return nil
 	}
-	object, ok := i.env.GetAt(distance-1, "this")
+	object, ok := i.env.GetAt(distance-1, tokenizer.KeywordLexemes[tokenizer.THIS])
 	if !ok {
 		return nil
 	}
@@ -147,6 +147,6 @@ func (i *Interpreter) handleSuperSet(superExpr *ast.Super, nameTok tokenizer.Tok
 	}
 
 	// assigning to a field via super is invalid
-	i.report(loxerror.NewRuntimeError(nameTok.Line(), nameTok.Lexeme(), "cannot assign to superclass field"))
+	i.report(loxerror.NewRuntimeError(nameTok.Line(), nameTok.Lexeme(), loxerror.ErrCannotAssignToSuperclassProps))
 	return nil
 }

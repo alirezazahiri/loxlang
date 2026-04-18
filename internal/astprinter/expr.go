@@ -3,6 +3,7 @@ package astprinter
 import (
 	"fmt"
 	"loxlang/internal/ast"
+	"loxlang/internal/tokenizer"
 	"strings"
 )
 
@@ -84,9 +85,9 @@ func (p *AstPrinter) VisitSetExpr(expr *ast.Set) any {
 }
 
 func (p *AstPrinter) VisitThisExpr(expr *ast.This) any {
-	return p.parenthesize("this")
+	return p.parenthesize(tokenizer.KeywordLexemes[tokenizer.THIS])
 }
 
 func (p *AstPrinter) VisitSuperExpr(expr *ast.Super) any {
-	return p.parenthesize("super")
+	return p.parenthesize(tokenizer.KeywordLexemes[tokenizer.SUPER])
 }

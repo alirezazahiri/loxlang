@@ -55,6 +55,7 @@ const (
 	ErrSettersExpectExactlyOneParam                 LoxErrorMessage = "setters expect exactly one parameter"
 	ErrClassesCannotInheritThemselves               LoxErrorMessage = "classes cannot inherit from themselves"
 	ErrSuperClassMustBeClass                        LoxErrorMessage = "superclasses must be a class"
+	ErrCannotAssignToSuperclassProps                LoxErrorMessage = "cannot directly assign to superclass properties (hint: use setters)"
 )
 
 func ErrUnexpectedToken(received, expected string) LoxErrorMessage {

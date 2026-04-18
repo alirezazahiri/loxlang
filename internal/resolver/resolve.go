@@ -8,7 +8,6 @@ import (
 	"loxlang/pkg/loxerror"
 )
 
-// Resolve panics if there is a resolution error
 func (r *Resolver) Resolve(resolvable any) {
 	switch resolvable.(type) {
 	case []ast.Stmt:

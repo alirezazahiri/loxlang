@@ -19,7 +19,7 @@ type ExprParser interface {
 	factor() ast.Expr
 	unary() ast.Expr
 	call() ast.Expr
-	arguments() []ast.Expr
+	finishCall() ast.Expr
 	primary() ast.Expr
 }
 
