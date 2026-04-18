@@ -2,6 +2,7 @@ package lox
 
 import (
 	"loxlang/internal/builtin"
+	builtinclasses "loxlang/internal/builtin/classes"
 	"loxlang/internal/environment"
 	"loxlang/pkg/constants"
 	"loxlang/pkg/loxerror"
@@ -56,5 +57,9 @@ func (l *LoxLang) Errors() []*loxerror.LoxError {
 func (l *LoxLang) registerBuiltins() {
 	l.globals.Define(constants.CLOCK_FN, builtin.NewClockFn())
 	l.globals.Define(constants.INPUT_FN, builtin.NewInputFn())
-	l.globals.Define(constants.LOG_FN, builtin.NewLogFn())
+	l.registerBuiltinClasses()
+}
+
+func (l *LoxLang) registerBuiltinClasses() {
+	l.globals.Define(constants.CONSOLE_CLASS_INSTANCE, builtinclasses.Register(builtinclasses.NewConsoleClass))
 }

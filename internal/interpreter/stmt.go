@@ -116,7 +116,7 @@ func (i *Interpreter) VisitClassStmt(stmt *ast.Class) any {
 		i.env.Define(tokenizer.KeywordLexemes[tokenizer.SUPER], superClass)
 	}
 
-	methods := make(map[string]*LoxFunction, 0)
+	methods := make(map[string]LoxBindable, 0)
 	getters := make(map[string]*LoxFunction, 0)
 	setters := make(map[string]*LoxFunction, 0)
 

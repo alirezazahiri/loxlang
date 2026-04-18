@@ -109,7 +109,7 @@ func (i *Interpreter) VisitAssignExpr(expr *ast.Assign) any {
 		}
 	}
 	
-	if !ok {
+	if ok {
 		success = i.env.AssignAt(distance, expr.Name, value)
 	} else {
 		success = i.globals.Assign(expr.Name, value)
