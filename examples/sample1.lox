@@ -1,0 +1,24 @@
+fun a() {
+  while (true) {
+    if (!false) {
+      return b();
+    }
+    break;
+    return null;
+  }
+  return null;
+}
+
+fun b() {
+  if (true) {
+    return c();
+  }
+  return null;
+}
+
+fun c() {
+  return "a";
+  return null;
+}
+
+print a();
